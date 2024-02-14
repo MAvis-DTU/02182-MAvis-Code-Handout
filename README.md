@@ -30,7 +30,7 @@ git push origin main
 
 ## Requirements
 
-The server requires at least a JRE for Java 11, and has been tested with OpenJDK.
+The server requires at least a JRE for Java 17, and has been tested with OpenJDK.
 
 The Python searchclient has been tested with Python 3.9, but should work with versions of Python above 3.7.
 The searchclient requires the 'psutil' package to monitor its memory usage; the package can be installed with pip:

@@ -29,3 +29,9 @@ class Frontier(Protocol):
     @abstractmethod
     def contains(self, state: h_state.HospitalState) -> bool:
         ...
+
+    def __len__(self) -> int:
+        return self.size()
+    
+    def __contains__(self, state: h_state.HospitalState) -> bool:
+        return self.contains(state)

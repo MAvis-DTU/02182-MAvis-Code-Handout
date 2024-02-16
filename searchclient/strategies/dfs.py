@@ -14,8 +14,10 @@ from __future__ import annotations
 
 import domains.hospital.goal_description as h_goal_description
 import domains.hospital.state as h_state
+from strategies.base import Frontier
 
-class FrontierDFS:
+
+class FrontierDFS(Frontier):
 
     def __init__(self):
         # Your code here...

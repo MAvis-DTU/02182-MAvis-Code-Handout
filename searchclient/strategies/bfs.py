@@ -15,8 +15,10 @@ from collections import deque
 
 import domains.hospital.goal_description as h_goal_description
 import domains.hospital.state as h_state
+from strategies.base import Frontier
 
-class FrontierBFS:
+
+class FrontierBFS(Frontier):
 
     def __init__(self):
         # We use both a deque and a set for the BFS implementation.

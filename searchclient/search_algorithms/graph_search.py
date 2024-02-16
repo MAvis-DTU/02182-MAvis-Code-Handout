@@ -19,7 +19,7 @@ from typing import Union
 import domains.hospital.actions as actions
 import domains.hospital.state as state
 import domains.hospital.goal_description as goal_description
-import strategies.bfs as bfs
+import strategies.base as base
 
 from domains.hospital.actions import MoveAction
 
@@ -30,7 +30,7 @@ def graph_search(
         initial_state:      state.HospitalState,
         action_set:         list[list[actions.Action]],
         goal_description:   goal_description.HospitalGoalDescription,
-        frontier:           bfs.FrontierBFS
+        frontier:           base.Frontier
     ) -> tuple[bool, list[list[actions.Action]]]:
     global start_time
 

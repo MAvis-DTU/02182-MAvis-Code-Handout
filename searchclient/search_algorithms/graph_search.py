@@ -28,10 +28,10 @@ from domains.hospital.actions import MoveAction
 # actions!) but if it is confusing, you can just ignore it as it is only for documentation
 def graph_search(
         initial_state:      state.HospitalState,
-        action_set:         list[list[actions.AnyAction]],
+        action_set:         list[list[actions.Action]],
         goal_description:   goal_description.HospitalGoalDescription,
         frontier:           bfs.FrontierBFS
-    ) -> tuple[bool, list[list[actions.AnyAction]]]:
+    ) -> tuple[bool, list[list[actions.Action]]]:
     global start_time
 
     # Set start time

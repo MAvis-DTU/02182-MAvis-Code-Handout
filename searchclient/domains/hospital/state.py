@@ -40,7 +40,7 @@ class HospitalState:
         agent_positions: list[tuple[tuple[int, int], str]],
         box_positions: list[tuple[tuple[int, int], str]],
         parent = None,
-        action: actions.AnyAction = None
+        action: actions.Action = None
     ):
         self.level = level
         self.agent_positions = agent_positions
@@ -92,7 +92,7 @@ class HospitalState:
                self.agent_at(position)[1] == '' and \
                self.box_at(position)[1] == ''
 
-    def extract_plan(self) -> list[actions.AnyAction]:
+    def extract_plan(self) -> list[actions.Action]:
         """Extracts a plan from the search tree by walking backwards through the search tree"""
         reverse_plan = []
         current_node = self
@@ -102,7 +102,7 @@ class HospitalState:
         reverse_plan.reverse()
         return reverse_plan
 
-    def is_conflicting(self, joint_action: list[actions.AnyAction]) -> bool:
+    def is_conflicting(self, joint_action: list[actions.Action]) -> bool:
         """Returns true if any of the individual agent actions in the joint action results in a conflict"""
         # All previously free cells which either an agent or box will move into during the joint action
         destinations = set()
@@ -128,7 +128,7 @@ class HospitalState:
 
         return False
 
-    def result(self, joint_action: list[actions.AnyAction]):
+    def result(self, joint_action: list[actions.Action]):
         """Computes the state resulting from applying a joint action to this state"""
         new_state = HospitalState(self.level, copy.copy(self.agent_positions), copy.copy(self.box_positions),
                                   self, joint_action)
@@ -142,7 +142,7 @@ class HospitalState:
 
         return new_state
 
-    def result_of_plan(self, plan: list[list[actions.AnyAction]]):
+    def result_of_plan(self, plan: list[list[actions.Action]]):
         """Computes the state resulting from applying a sequence of joint actions (a plan) to this state"""
         # If the plan is empty, just return a new copy of the current state
         if len(plan) == 0:
@@ -153,14 +153,14 @@ class HospitalState:
             new_state = new_state.result(joint_action)
         return new_state
 
-    def is_applicable(self, joint_action: list[actions.AnyAction]) -> bool:
+    def is_applicable(self, joint_action: list[actions.Action]) -> bool:
         """Returns whether all individual actions in the joint_action is applicable in this state"""
         for agent_index, action in enumerate(joint_action):
             if not action.is_applicable(agent_index, self):
                 return False
         return True
 
-    def get_applicable_actions(self, action_set: list[list[actions.AnyAction]]):
+    def get_applicable_actions(self, action_set: list[list[actions.Action]]):
         """Returns a list of all applicable joint_action in this state"""
         num_agents = len(self.agent_positions)
 

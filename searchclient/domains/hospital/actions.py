@@ -15,8 +15,9 @@ from __future__ import annotations
 # pos_add and pos_sub are helper methods for performing element-wise addition and subtractions on positions
 # Ex: Given two positions A = (1, 2) and B = (3, 4), pos_add(A, B) == (4, 6) and pos_sub(B, A) == (2,2)
 from utils import pos_add, pos_sub
-from typing import Union, Tuple
+from typing import Union, Tuple, Protocol
 import domains.hospital.state as h_state
+from abc import abstractmethod
 
 direction_deltas = {
     'N': (-1, 0),
@@ -48,7 +49,26 @@ direction_deltas = {
 
 Position = Tuple[int, int] # Only for type hinting
 
-class NoOpAction:
+class Action(Protocol):
+    name: str
+
+    @abstractmethod
+    def is_applicable(self, agent_index: int, state: h_state.HospitalState) -> bool:
+        ...
+
+    @abstractmethod
+    def result(self, agent_index: int, state: h_state.HospitalState):
+        ...
+    
+    @abstractmethod
+    def conflicts(self, agent_index: int, state: h_state.HospitalState) -> tuple[list[Position], list[Position]]:
+        ...
+
+    def __repr__(self) -> str:
+        return self.name
+
+
+class NoOpAction(Action):
 
     def __init__(self):
         self.name = "NoOp"
@@ -66,11 +86,8 @@ class NoOpAction:
         boxes_moved = []
         return destinations, boxes_moved
 
-    def __repr__(self) -> str:
-        return self.name
 
-
-class MoveAction:
+class MoveAction(Action):
 
     def __init__(self, agent_direction):
         self.agent_delta = direction_deltas.get(agent_direction)
@@ -98,12 +115,8 @@ class MoveAction:
         boxes_moved = []
         return destinations, boxes_moved
 
-    def __repr__(self):
-        return self.name
 
-AnyAction = Union[NoOpAction, MoveAction] # Only for type hinting
-
-class PushAction:
+class PushAction(Action):
 
     def __init__(self, agent_direction, box_direction):
         self.agent_delta = direction_deltas.get(agent_direction)
@@ -137,11 +150,8 @@ class PushAction:
         boxes_moved = [old_box_position]
         return destinations, boxes_moved
 
-    def __repr__(self):
-        return self.name
 
-
-class PullAction:
+class PullAction(Action):
 
     def __init__(self, agent_direction, box_direction):
         self.agent_delta = direction_deltas.get(agent_direction)
@@ -174,9 +184,6 @@ class PullAction:
         destinations = [new_agent_position]
         boxes_moved = [current_box_position]
         return destinations, boxes_moved
-
-    def __repr__(self):
-        return self.name
 
 
 

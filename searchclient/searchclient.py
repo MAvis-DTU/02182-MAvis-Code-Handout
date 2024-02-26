@@ -99,6 +99,12 @@ if __name__ == '__main__':
 
         # Construct the requested action library
         action_library = DEFAULT_HOSPITAL_ACTION_LIBRARY
+        if initial_state.level.num_boxes == 0: # Remove pull and push actions if there are no boxes
+            action_library = [
+                action for action in action_library 
+                if not isinstance(action, PullAction) \
+                and not isinstance(action, PushAction)
+            ]
 
         # Construct the requested heuristic
         if heuristic_name == 'goalcount':

@@ -17,6 +17,7 @@ import itertools
 
 import domains.hospital.goal_description as h_goal_description
 import domains.hospital.state as h_state
+from strategies.base import Frontier
 
 # Here we define a priority queue which allows the priority of elements to be updated in constant time.
 # This priority queue is therefore suitable for usage as the frontier in a best-first search.
@@ -79,7 +80,7 @@ class PriorityQueue:
         return entry[0]
 
 
-class FrontierBestFirst:
+class FrontierBestFirst(Frontier):
 
     def __init__(self):
         self.goal_description = None

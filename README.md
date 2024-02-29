@@ -65,6 +65,16 @@ For instance, to use A* search with a goal count heuristic, on the same level as
 java -jar server.jar -g -s 300 -t 180 -c "python searchclient/searchclient.py -astar -goalcount" -l levels/SAD1.lvl
 ```
 
+Agent types:
+    The folder 'agent_types' contains multiple different type of agents which can be selected using the command line:
+    - 'classic' - A classic planning agent using GRAPH-SEARCH. Selected by default.
+    - 'decentralised' - A planning agent using DECENTRALISED-AGENTS. Select by adding "-decentralised" to the command line.
+    - 'helper' - A planning agent using the helper agent algorithm. Select by adding "-helper" to the command line.
+    - 'non_deterministic' - A planning agent using AND-OR-GRAPH-SEACH with a broken executor.
+                            Select by adding "-nondeterministic" to the command line.
+
+We can then combine different types of frontiers, action libraries and agent type.
+
 ## Debugging
 
 As communication with the java server is performed over stdout, `print(<something>)` does not work directly. 

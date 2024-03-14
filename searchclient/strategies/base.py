@@ -4,18 +4,21 @@ from abc import abstractmethod
 import domains.hospital.goal_description as h_goal_description
 import domains.hospital.state as h_state
 
+from interface.goal_description import GoalDescription
+from interface.state import State
+
 
 class Frontier(Protocol):
     @abstractmethod
-    def prepare(self, goal_description: h_goal_description.HospitalGoalDescription) -> None:
+    def prepare(self, goal_description: GoalDescription) -> None:
         ...
 
     @abstractmethod
-    def add(self, state: h_state.HospitalState) -> None:
+    def add(self, state: State) -> None:
         ...
 
     @abstractmethod
-    def pop(self) -> h_state.HospitalState:
+    def pop(self) -> State:
         ...
 
     @abstractmethod
@@ -27,11 +30,11 @@ class Frontier(Protocol):
         ...
 
     @abstractmethod
-    def contains(self, state: h_state.HospitalState) -> bool:
+    def contains(self, state: State) -> bool:
         ...
 
     def __len__(self) -> int:
         return self.size()
     
-    def __contains__(self, state: h_state.HospitalState) -> bool:
+    def __contains__(self, state: State) -> bool:
         return self.contains(state)

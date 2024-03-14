@@ -14,8 +14,20 @@
 from search_algorithms.graph_search import graph_search
 from utils import *
 
+from interface.level import Level
+from interface.state import State
+from interface.actions import Action
+from interface.goal_description import GoalDescription
+from interface.frontier import Frontier
 
-def decentralised_agent_type(level, initial_state, action_library, goal_description, frontier):
+
+def decentralised_agent_type(
+    level: Level,
+    initial_state: State,
+    action_library: list[Action],
+    goal_description: GoalDescription,
+    frontier: Frontier,
+):
     # Create an action set where all agents can perform all actions
     action_set = [action_library] * level.num_agents
 

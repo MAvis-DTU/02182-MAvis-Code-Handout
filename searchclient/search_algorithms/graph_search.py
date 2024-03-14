@@ -16,10 +16,10 @@ import time
 import memory
 from typing import Union
 
-import domains.hospital.actions as actions
-import domains.hospital.state as state
-import domains.hospital.goal_description as goal_description
-import strategies.base as base
+from interface.actions import Action
+from interface.goal_description import GoalDescription
+from interface.state import State 
+from interface.frontier import Frontier
 
 from domains.hospital.actions import MoveAction
 
@@ -27,11 +27,11 @@ from domains.hospital.actions import MoveAction
 # to make it easier for you to understand (now you know that `action_set` is a list of lists of
 # actions!) but if it is confusing, you can just ignore it as it is only for documentation
 def graph_search(
-        initial_state:      state.HospitalState,
-        action_set:         list[list[actions.Action]],
-        goal_description:   goal_description.HospitalGoalDescription,
-        frontier:           base.Frontier
-    ) -> tuple[bool, list[list[actions.Action]]]:
+        initial_state:      State,
+        action_set:         list[list[Action]],
+        goal_description:   GoalDescription,
+        frontier:           Frontier
+    ) -> tuple[bool, list[list[Action]]]:
     global start_time
 
     # Set start time

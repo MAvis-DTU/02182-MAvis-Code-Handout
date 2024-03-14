@@ -14,6 +14,9 @@ from __future__ import annotations
 
 import domains.hospital.goal_description as h_goal_description
 import domains.hospital.state as h_state
+
+from interface.goal_description import GoalDescription
+from interface.state import State
 from strategies.base import Frontier
 
 
@@ -30,11 +33,11 @@ class FrontierDFS(Frontier):
         # Your code here...
         raise NotImplementedError()
 
-    def add(self, state: h_state.HospitalState):
+    def add(self, state: State):
         # Your code here...
         raise NotImplementedError()
 
-    def pop(self) -> h_state.HospitalState:
+    def pop(self) -> State:
         # Your code here...
         raise NotImplementedError()
 
@@ -46,6 +49,6 @@ class FrontierDFS(Frontier):
         # Your code here...
         raise NotImplementedError()
 
-    def contains(self, state: h_state.HospitalState) -> bool:
+    def contains(self, state: State) -> bool:
         # Your code here...
         raise NotImplementedError()

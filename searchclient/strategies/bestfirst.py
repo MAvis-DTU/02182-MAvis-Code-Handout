@@ -15,9 +15,10 @@ from __future__ import annotations
 import heapq
 import itertools
 
-import domains.hospital.goal_description as h_goal_description
-import domains.hospital.state as h_state
+from interface.state import State
+from interface.goal_description import GoalDescription
 from strategies.base import Frontier
+
 
 # Here we define a priority queue which allows the priority of elements to be updated in constant time.
 # This priority queue is therefore suitable for usage as the frontier in a best-first search.
@@ -28,7 +29,7 @@ class PriorityQueue:
         self.entry_finder = {}
         self.counter = itertools.count()
 
-    def add(self, element: h_state.HospitalState, priority: int):
+    def add(self, element: State, priority: int):
         # The elements are stored in a queue as a triplet (priority, count, element)
         # Python sorts tuples by comparing the first position and if these tie progressing to the next position until
         # it either finds a position in the tuples where they differ or all positions has been compared (in which case
@@ -45,7 +46,7 @@ class PriorityQueue:
         heapq.heappush(self.heap, entry)
         self.entry_finder[element] = entry
 
-    def change_priority(self, element: h_state.HospitalState, new_priority: int):
+    def change_priority(self, element: State, new_priority: int):
         # We cannot change the priority of an element already in the heap as that would break the heap invariant.
         # Instead we invalidate the current entry by replacing the element with None and then inserting the element
         # again with the new priority.
@@ -54,7 +55,7 @@ class PriorityQueue:
         # Add new entry with new priority
         self.add(element, new_priority)
 
-    def pop(self) -> h_state.HospitalState:
+    def pop(self) -> State:
         # Since some of the elements in the queue might have been invalidated by the 'change_priority' method, we need
         # to keep taking elements from the queue until we find a valid entry.
         while True:
@@ -87,7 +88,7 @@ class FrontierBestFirst(Frontier):
         # Your code here...
         raise NotImplementedError()
 
-    def prepare(self, goal_description: h_goal_description.HospitalGoalDescription):
+    def prepare(self, goal_description: GoalDescription):
         self.goal_description = goal_description
         # Prepare is called at the beginning of a search and since we will sometimes reuse frontiers for multiple
         # searches, prepares must ensure that state is cleared.
@@ -95,14 +96,14 @@ class FrontierBestFirst(Frontier):
         # Your code here...
         raise NotImplementedError()
 
-    def f(self, state: h_state.HospitalState, goal_description: h_goal_description.HospitalGoalDescription) -> int:
+    def f(self, state: State, goal_description: GoalDescription) -> int:
         raise Exception("FrontierBestFirst should not be directly used. Instead use a subclass overriding f()")
 
-    def add(self, state: h_state.HospitalState):
+    def add(self, state: State):
         # Your code here...
         raise NotImplementedError()
 
-    def pop(self) -> h_state.HospitalState:
+    def pop(self) -> State:
         # Your code here...
         raise NotImplementedError()
 
@@ -114,7 +115,7 @@ class FrontierBestFirst(Frontier):
         # Your code here...
         raise NotImplementedError()
 
-    def contains(self, state: h_state.HospitalState) -> bool:
+    def contains(self, state: State) -> bool:
         # Your code here...
         raise NotImplementedError()
 
@@ -128,7 +129,7 @@ class FrontierAStar(FrontierBestFirst):
         super().__init__()
         self.heuristic = heuristic
 
-    def f(self, state: h_state.HospitalState, goal_description: h_goal_description.HospitalGoalDescription) -> int:
+    def f(self, state: State, goal_description: GoalDescription) -> int:
         # Your code here...
         raise NotImplementedError()
 
@@ -139,6 +140,6 @@ class FrontierGreedy(FrontierBestFirst):
         super().__init__()
         self.heuristic = heuristic
 
-    def f(self, state: h_state.HospitalState, goal_description: h_goal_description.HospitalGoalDescription) -> int:
+    def f(self, state: State, goal_description: GoalDescription) -> int:
         # Your code here...
         raise NotImplementedError()

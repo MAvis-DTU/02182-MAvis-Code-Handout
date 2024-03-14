@@ -15,10 +15,20 @@ from domains.hospital import HospitalGoalDescription
 from search_algorithms.graph_search import graph_search
 from utils import *
 
+from interface.level import Level
+from interface.state import State
+from interface.actions import Action
+from interface.goal_description import GoalDescription
+from interface.frontier import Frontier
 
 
-
-def helper_agent_type(level, initial_state, action_library, goal_description, frontier):
+def helper_agent_type(
+    level: Level,
+    initial_state: State,
+    action_library: list[Action],
+    goal_description: GoalDescription,
+    frontier: Frontier,
+):
 
     # Here you should implement the HELPER-AGENT algorithm.
     # Some tips are:

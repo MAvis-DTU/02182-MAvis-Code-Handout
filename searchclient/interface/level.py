@@ -2,7 +2,14 @@ from __future__ import annotations
 from typing import Protocol, TYPE_CHECKING
 
 if TYPE_CHECKING is True:
-    from interface.typing import PositionType, AgentType, BoxType, AgentGoalType, BoxGoalType
+    from interface.typing import (
+        PositionType,
+        AgentType,
+        BoxType,
+        AgentGoalType,
+        BoxGoalType,
+    )
+
 
 class Level(Protocol):
     name: str
@@ -17,3 +24,11 @@ class Level(Protocol):
     num_boxes: int
     num_agent_goals: int
     num_box_goals: int
+
+    def wall_at(self, position: PositionType) -> bool: ...
+
+    def agent_goal_at(self, position: PositionType) -> str | None: ...
+
+    def box_goal_at(self, position: PositionType) -> str | None: ...
+
+    def goal_at(self, position: PositionType) -> str | None: ...

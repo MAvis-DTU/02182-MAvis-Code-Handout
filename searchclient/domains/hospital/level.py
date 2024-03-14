@@ -11,7 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
+from __future__ import annotations
+
+from interface.typing import PositionType, AgentGoalType, BoxGoalType
 
 
 class HospitalLevel:
@@ -27,7 +29,16 @@ class HospitalLevel:
       the format (position, character).
     """
 
-    def __init__(self, name, walls, colors, agent_goals, box_goals, initial_agent_positions, initial_box_positions):
+    def __init__(
+        self,
+        name: str,
+        walls: list[list[bool]],
+        colors: dict[str, str],
+        agent_goals: list[AgentGoalType],
+        box_goals: list[BoxGoalType],
+        initial_agent_positions: list[PositionType],
+        initial_box_positions: list[PositionType],
+    ):
         self.name = name
         self.walls = walls
         self.colors = colors
@@ -43,14 +54,14 @@ class HospitalLevel:
         self.num_box_goals = len(self.box_goals)
 
     @staticmethod
-    def parse_level_lines(level_lines):
+    def parse_level_lines(level_lines) -> HospitalLevel:
         # Reverse the lines in the level file such that we can efficiently read the next line using 'pop'
         level_lines.reverse()
 
         # We can assume that the level file is conforming to specification, since the server verifies this.
         # Read domain
-        level_lines.pop() # '#domain'
-        level_lines.pop() # 'hospital'
+        level_lines.pop()  # '#domain'
+        level_lines.pop()  # 'hospital'
 
         # Read level name
         level_lines.pop()  # '#levelname'
@@ -67,9 +78,9 @@ class HospitalLevel:
             objects = split[1].split(",")
             for obj in objects:
                 char = obj.strip()[0]
-                if '0' <= char <= '9':
+                if "0" <= char <= "9":
                     colors[char] = color
-                elif 'A' <= char <= 'Z':
+                elif "A" <= char <= "Z":
                     colors[char] = color
             line = level_lines.pop()
 
@@ -86,7 +97,7 @@ class HospitalLevel:
             num_cols = max(num_cols, len(line))
 
         # Read initial state
-        initial_agent_positions = [((0, 0), '')] * 10
+        initial_agent_positions = [((0, 0), "")] * 10
         initial_box_positions = []
         walls = [[True for _ in range(num_cols)] for _ in range(num_rows)]
 
@@ -95,12 +106,12 @@ class HospitalLevel:
             line = level_lines.pop()
             for col, char in enumerate(line):
 
-                walls[row][col] = char == '+'
-                if '0' <= char <= '9':
-                    idx = ord(char) - ord('0')
+                walls[row][col] = char == "+"
+                if "0" <= char <= "9":
+                    idx = ord(char) - ord("0")
                     initial_agent_positions[idx] = ((row, col), char)
                     num_agents += 1
-                elif 'A' <= char <= 'Z':
+                elif "A" <= char <= "Z":
                     initial_box_positions.append(((row, col), char))
 
         # Cut off agents not used in level
@@ -116,31 +127,39 @@ class HospitalLevel:
             line = level_lines.pop()
             for col, char in enumerate(line):
 
-                if '0' <= char <= '9':
+                if "0" <= char <= "9":
                     agent_goals.append(((row, col), char, True))
-                if 'A' <= char <= 'Z':
+                if "A" <= char <= "Z":
                     box_goals.append(((row, col), char, True))
 
-        return HospitalLevel(level_name, walls, colors, agent_goals, box_goals, initial_agent_positions, initial_box_positions)
+        return HospitalLevel(
+            level_name,
+            walls,
+            colors,
+            agent_goals,
+            box_goals,
+            initial_agent_positions,
+            initial_box_positions,
+        )
 
-    def wall_at(self, position):
+    def wall_at(self, position: PositionType) -> bool:
         """Returns True if there is a wall at the requested position and False otherwise"""
         return self.walls[position[0]][position[1]]
 
-    def agent_goal_at(self, position):
+    def agent_goal_at(self, position: PositionType) -> str | None:
         """If there is an agent goal at the requested position, its letter is returned and None otherwise"""
-        for (goal_position, goal_letter, _) in self.agent_goals:
+        for goal_position, goal_letter, _ in self.agent_goals:
             if goal_position == position:
                 return goal_letter
         return None
 
-    def box_goal_at(self, position):
+    def box_goal_at(self, position: PositionType) -> str | None:
         """If there is a box goal at the requested position, its letter is returned and None otherwise"""
-        for (goal_position, goal_letter, _) in self.box_goals:
+        for goal_position, goal_letter, _ in self.box_goals:
             if goal_position == position:
                 return goal_letter
         return None
 
-    def goal_at(self, position):
+    def goal_at(self, position: PositionType) -> str | None:
         """If there is a goal at the requested position, its letter is returned and None otherwise"""
         return self.agent_goal_at(position) or self.box_goal_at(position)

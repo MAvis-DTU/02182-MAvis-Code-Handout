@@ -1,9 +1,10 @@
 from typing import NewType
 
-PositionType = NewType('Position', tuple[int, int])
+PositionType = NewType('PositionType', tuple[int, int])
 
-AgentType = NewType('Agent', tuple[PositionType, str])
-BoxType = NewType('Box', tuple[PositionType, str])
+AgentType = NewType('AgentType', tuple[PositionType, str])
+BoxType = NewType('BoxType', tuple[PositionType, str])
 
-AgentGoalType = NewType('AgentGoal', tuple[PositionType, str, bool])
-BoxGoalType = NewType('BoxGoal', tuple[PositionType, str, bool])
+GoalType = NewType('GoalType', tuple[PositionType, str, bool])
+AgentGoalType = NewType('AgentGoalType', tuple[PositionType, str, bool])
+BoxGoalType = NewType('BoxGoalType', tuple[PositionType, str, bool])

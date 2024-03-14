@@ -11,16 +11,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 import copy
 import itertools
 import random
+
 # Set fixed seed for random shuffle (ensures deterministic runs)
 random.seed(a=0, version=2)
 
-import domains.hospital.level as h_level
-import domains.hospital.actions as actions
+
 from interface.actions import Action
+from interface.typing import PositionType, AgentType, BoxType
+
+if TYPE_CHECKING is True:
+    from domains.hospital.level import HospitalLevel
 
 
 class HospitalState:
@@ -37,11 +42,11 @@ class HospitalState:
 
     def __init__(
         self,
-        level: h_level.HospitalLevel,
-        agent_positions: list[tuple[tuple[int, int], str]],
-        box_positions: list[tuple[tuple[int, int], str]],
-        parent = None,
-        action: Action = None
+        level: HospitalLevel,
+        agent_positions: list[AgentType],
+        box_positions: list[BoxType],
+        parent=None,
+        action: Action = None,
     ):
         self.level = level
         self.agent_positions = agent_positions
@@ -50,48 +55,50 @@ class HospitalState:
         self.action = action
         self.path_cost = 0 if parent is None else parent.path_cost + 1
 
-    def agent_at(self, position: tuple[int, int]) -> tuple[int, str]:
+    def agent_at(self, position: PositionType) -> tuple[int, str]:
         """
         Returns the index and character of the agent at the given position.
         If there is no agent at the position, -1,'' is returned instead.
         """
-        for (idx, (agent_position, agent_char)) in enumerate(self.agent_positions):
-            if agent_char == '':
+        for idx, (agent_position, agent_char) in enumerate(self.agent_positions):
+            if agent_char == "":
                 continue
             if agent_position == position:
                 return idx, agent_char
-        return -1, ''
+        return -1, ""
 
-    def box_at(self, position: tuple[int, int]) -> tuple[int, str]:
+    def box_at(self, position: PositionType) -> tuple[int, str]:
         """
         Returns the index and character of the box at the given position.
         If there is no box at the position, -1,'' is returned instead.
         """
-        for (idx, (box_position, box_char)) in enumerate(self.box_positions):
-            if box_char == '':
+        for idx, (box_position, box_char) in enumerate(self.box_positions):
+            if box_char == "":
                 continue
             if box_position == position:
                 return idx, box_char
-        return -1, ''
+        return -1, ""
 
-    def object_at(self, position: tuple[int, int]) -> str:
+    def object_at(self, position: PositionType) -> str:
         """
         Returns the index and character of the object at the given position.
         It can be used for checks where we do not care whether it is an agent or a box, e.g. when checking
         for obstacles. If there is no object at the position, -1,'' is returned instead.
         """
         idx, agent_char = self.agent_at(position)
-        if agent_char != '':
+        if agent_char != "":
             return agent_char
         else:
             idx, box_char = self.box_at(position)
             return box_char
 
-    def free_at(self, position: tuple[int, int]) -> bool:
+    def free_at(self, position: PositionType) -> bool:
         """Returns True iff there are no objects at the requested location"""
-        return not self.level.wall_at(position) and \
-               self.agent_at(position)[1] == '' and \
-               self.box_at(position)[1] == ''
+        return (
+            not self.level.wall_at(position)
+            and self.agent_at(position)[1] == ""
+            and self.box_at(position)[1] == ""
+        )
 
     def extract_plan(self) -> list[Action]:
         """Extracts a plan from the search tree by walking backwards through the search tree"""
@@ -112,7 +119,7 @@ class HospitalState:
 
         for agent_index, action in enumerate(joint_action):
             # We ignore actions for filtered agents
-            if self.agent_positions[agent_index][1] == '':
+            if self.agent_positions[agent_index][1] == "":
                 continue
             # Compute destinations and moved boxes for action
             action_destinations, action_boxes = action.conflicts(agent_index, self)
@@ -129,12 +136,17 @@ class HospitalState:
 
         return False
 
-    def result(self, joint_action: list[Action]):
+    def result(self, joint_action: list[Action]) -> HospitalState:
         """Computes the state resulting from applying a joint action to this state"""
-        new_state = HospitalState(self.level, copy.copy(self.agent_positions), copy.copy(self.box_positions),
-                                  self, joint_action)
+        new_state = HospitalState(
+            self.level,
+            copy.copy(self.agent_positions),
+            copy.copy(self.box_positions),
+            self,
+            joint_action,
+        )
 
-        for (agent_index, action) in enumerate(joint_action):
+        for agent_index, action in enumerate(joint_action):
             action.result(agent_index, new_state)
 
         # Sorting the box positions ensures that the boxes are indistinguishable which significantly
@@ -143,11 +155,15 @@ class HospitalState:
 
         return new_state
 
-    def result_of_plan(self, plan: list[list[Action]]):
+    def result_of_plan(self, plan: list[list[Action]]) -> HospitalState:
         """Computes the state resulting from applying a sequence of joint actions (a plan) to this state"""
         # If the plan is empty, just return a new copy of the current state
         if len(plan) == 0:
-            return HospitalState(self.level, copy.copy(self.agent_positions), copy.copy(self.box_positions))
+            return HospitalState(
+                self.level,
+                copy.copy(self.agent_positions),
+                copy.copy(self.box_positions),
+            )
         # Otherwise, result each action in the plan
         new_state = self.result(plan[0])
         for joint_action in plan[1:]:
@@ -161,7 +177,9 @@ class HospitalState:
                 return False
         return True
 
-    def get_applicable_actions(self, action_set: list[list[Action]]):
+    def get_applicable_actions(
+        self, action_set: list[list[Action]]
+    ) -> list[list[Action]]:
         """Returns a list of all applicable joint_action in this state"""
         num_agents = len(self.agent_positions)
 
@@ -187,30 +205,32 @@ class HospitalState:
         random.shuffle(applicable_joint_actions)
         return applicable_joint_actions
 
-    def color_filter(self, color: str):
+    def color_filter(self, color: str) -> HospitalState:
         """
         Returns a copy of the current state where all entities, of another color than the color passed as an argument,
         has been removed
         """
 
         filtered_agent_positions = []
-        for (agent_position, agent_char) in self.agent_positions:
+        for agent_position, agent_char in self.agent_positions:
             if self.level.colors[agent_char] == color:
                 filtered_agent_positions.append((agent_position, agent_char))
 
         filtered_box_positions = []
-        for (box_position, box_char) in self.box_positions:
+        for box_position, box_char in self.box_positions:
             if self.level.colors[box_char] == color:
                 filtered_box_positions.append((box_position, box_char))
 
-        return HospitalState(self.level, filtered_agent_positions, filtered_box_positions)
+        return HospitalState(
+            self.level, filtered_agent_positions, filtered_box_positions
+        )
 
     def __repr__(self) -> str:
         lines = []
         lookup_table = {}
-        for (position, agent_char) in self.agent_positions:
+        for position, agent_char in self.agent_positions:
             lookup_table[position] = agent_char
-        for (position, box_char) in self.box_positions:
+        for position, box_char in self.box_positions:
             lookup_table[position] = box_char
 
         for row in range(len(self.level.walls)):
@@ -220,26 +240,29 @@ class HospitalState:
                 if position in lookup_table:
                     line.append(lookup_table[position])
                 elif self.level.walls[row][col]:
-                    line.append('+')
+                    line.append("+")
                 else:
-                    line.append(' ')
-            lines.append(''.join(line))
-        return '\n'.join(lines)
+                    line.append(" ")
+            lines.append("".join(line))
+        return "\n".join(lines)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: HospitalState) -> bool:
         """
         Notice that we here only compare the agent positions and box positions, but ignore all other fields.
         That means that two states with identical positions but e.g. different parent will be seen as equal.
         """
         if isinstance(other, self.__class__):
-            return self.agent_positions == other.agent_positions and self.box_positions == other.box_positions
+            return (
+                self.agent_positions == other.agent_positions
+                and self.box_positions == other.box_positions
+            )
         else:
             return False
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: HospitalState) -> bool:
         return not self.__eq__(other)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """
         Allows the state to be stored in a hash table for efficient lookup.
         Notice that we here only hash the agent positions and box positions, but ignore all other fields.

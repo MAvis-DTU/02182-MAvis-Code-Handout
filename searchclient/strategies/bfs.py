@@ -13,10 +13,12 @@
 from __future__ import annotations
 from collections import deque
 
-import domains.hospital.goal_description as h_goal_description
-import domains.hospital.state as h_state
+from interface.state import State
+from interface.goal_description import GoalDescription
+from strategies.base import Frontier
 
-class FrontierBFS:
+
+class FrontierBFS(Frontier):
 
     def __init__(self):
         # We use both a deque and a set for the BFS implementation.
@@ -25,18 +27,18 @@ class FrontierBFS:
         self.queue = deque()
         self.set = set()
 
-    def prepare(self, goal_description: h_goal_description.HospitalGoalDescription):
+    def prepare(self, goal_description: GoalDescription):
         # Prepare is called at the beginning of a search and since we will sometimes reuse frontiers for multiple
         # searches, prepares must ensure that state is cleared.
         self.queue.clear()
         self.set.clear()
 
-    def add(self, state: h_state.HospitalState):
+    def add(self, state: State):
         # Append adds to the tail of the queue
         self.queue.append(state)
         self.set.add(state)
 
-    def pop(self) -> h_state.HospitalState:
+    def pop(self) -> State:
         # Popleft takes from the head of the queue
         state = self.queue.popleft()
         self.set.remove(state)
@@ -48,5 +50,5 @@ class FrontierBFS:
     def size(self) -> int:
         return len(self.queue)
 
-    def contains(self, state: h_state.HospitalState) -> bool:
+    def contains(self, state: State) -> bool:
         return state in self.set

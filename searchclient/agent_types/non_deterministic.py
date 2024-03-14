@@ -15,8 +15,13 @@ import random
 from search_algorithms.and_or_graph_search import and_or_graph_search
 from utils import *
 
+from interface.level import Level
+from interface.state import State
+from interface.actions import Action
+from interface.goal_description import GoalDescription
 
-def broken_results(state, action):
+
+def broken_results(state: State, action: Action):
     # Building the Results() function containing the indeterminism
     # If performing two of the same actions is possible from the state,
     # this result is added as a possible outcome..
@@ -27,14 +32,23 @@ def broken_results(state, action):
     else:
         return [standard_case]
 
+
 CHANCE_OF_EXTRA_ACTION = 0.5
 
-def non_deterministic_agent_type(level, initial_state, action_library, goal_description):
+
+def non_deterministic_agent_type(
+    level: Level,
+    initial_state: State,
+    action_library: list[Action],
+    goal_description: GoalDescription,
+):
     # Create an action set for a single agent.
     action_set = [action_library]
 
     # Call AND-OR-GRAPH-SEARCH to compute a conditional plan
-    worst_case_length, plan = and_or_graph_search(initial_state, action_set, goal_description, broken_results)
+    worst_case_length, plan = and_or_graph_search(
+        initial_state, action_set, goal_description, broken_results
+    )
 
     if worst_case_length is None:
         print("Failed to find strong plan!", file=sys.stderr)
@@ -51,7 +65,9 @@ def non_deterministic_agent_type(level, initial_state, action_library, goal_desc
 
         if current_state not in plan:
             # The agent reached a state not covered by the plan; AND-OR-GRAPH-SEARCH failed.
-            print(f"Reached state not covered by plan!\n{current_state}", file=sys.stderr)
+            print(
+                f"Reached state not covered by plan!\n{current_state}", file=sys.stderr
+            )
             break
 
         # Otherwise, read the correct action to execute
@@ -68,7 +84,11 @@ def non_deterministic_agent_type(level, initial_state, action_library, goal_desc
         is_broken = random.random() < CHANCE_OF_EXTRA_ACTION
         is_applicable = current_state.is_applicable(joint_action)
         if is_broken and is_applicable:
-            print(f"Ups! Extra {joint_action_to_string(joint_action)}", flush=True, file=sys.stderr)
+            print(
+                f"Ups! Extra {joint_action_to_string(joint_action)}",
+                flush=True,
+                file=sys.stderr,
+            )
             print(joint_action_to_string(joint_action), flush=True)
             _ = parse_response(read_line())
             current_state = current_state.result(joint_action)

@@ -11,25 +11,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import annotations
-import sys
-import itertools
+from typing import TYPE_CHECKING
 from utils import pos_add, pos_sub, APPROX_INFINITY
 
-import domains.hospital.state as h_state
-import domains.hospital.goal_description as h_goal_description
-import domains.hospital.level as h_level
+if TYPE_CHECKING is True:
+    from domains.hospital.state import HospitalState
+    from domains.hospital.goal_description import HospitalGoalDescription
+    from domains.hospital.level import HospitalLevel
+
 
 class HospitalGoalCountHeuristics:
 
     def __init__(self):
         pass
 
-    def preprocess(self, level: h_level.HospitalLevel):
+    def preprocess(self, level: HospitalLevel):
         # This function will be called a single time prior to the search allowing us to preprocess the level such as
         # pre-computing lookup tables or other acceleration structures
         pass
 
-    def h(self, state: h_state.HospitalState, goal_description: h_goal_description.HospitalGoalDescription) -> int:
+    def h(self, state: HospitalState, goal_description: HospitalGoalDescription) -> int:
         # Your code goes here...
         return 0
 
@@ -39,13 +40,12 @@ class HospitalAdvancedHeuristics:
     def __init__(self):
         pass
 
-    def preprocess(self, level: h_level.HospitalLevel):
+    def preprocess(self, level: HospitalLevel):
         # This function will be called a single time prior to the search allowing us to preprocess the level such as
         # pre-computing lookup tables or other acceleration structures
         pass
 
-
-    def h(self, state: h_state.HospitalState, goal_description: h_goal_description.HospitalGoalDescription) -> int:
+    def h(self, state: HospitalState, goal_description: HospitalGoalDescription) -> int:
 
         # Your heuristic goes here...
         return 0

@@ -10,9 +10,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+from interface.typing import GoalType
+if TYPE_CHECKING is True:
+    from domains.hospital.level import HospitalLevel
+    from domains.hospital.state import HospitalState
+
 
 class HospitalGoalDescription:
-
     """
     A goal description is simple a list of goal literals where each literal is a triplet on
     the form (position, character, is_positive). Is_positive is used to denote how this goal is satisfied, with a
@@ -22,20 +29,20 @@ class HospitalGoalDescription:
     contains one kind. This double representation allows for quick and convenient lookup of goals of a specific kind
     """
 
-    def __init__(self, level, goals):
+    def __init__(self, level: HospitalLevel, goals: list[GoalType]):
         self.level = level
         self.goals = goals
         self.agent_goals = []
-        self.box_goals = []
+        self.box_goals = []        
         for goal in self.goals:
-            if '0' <= goal[1] <= '9':
+            if "0" <= goal[1] <= "9":
                 self.agent_goals.append(goal)
-            elif 'A' <= goal[1] <= 'Z':
+            elif "A" <= goal[1] <= "Z":
                 self.box_goals.append(goal)
 
-    def is_goal(self, state):
+    def is_goal(self, state: HospitalState) -> bool:
         """Returns whether the given state satisfies all goals in the goal description"""
-        for (goal_position, goal_char, is_positive_literal) in self.goals:
+        for goal_position, goal_char, is_positive_literal in self.goals:
             char = state.object_at(goal_position)
             if is_positive_literal and goal_char != char:
                 return False
@@ -44,7 +51,7 @@ class HospitalGoalDescription:
 
         return True
 
-    def color_filter(self, color):
+    def color_filter(self, color: str) -> HospitalGoalDescription:
         """Creates a copy of the goal descriptions where all entities of another color has been removed"""
         filtered_goals = []
         for goal in self.goals:
@@ -53,7 +60,7 @@ class HospitalGoalDescription:
 
         return HospitalGoalDescription(self.level, filtered_goals)
 
-    def get_sub_goal(self, index):
+    def get_sub_goal(self, index: int) -> HospitalGoalDescription:
         """
         This function allow each sub goal to be considered one at a time.
         Usage is as follows:
@@ -68,23 +75,27 @@ class HospitalGoalDescription:
         if index < num_box_goals:
             return HospitalGoalDescription(self.level, [self.box_goals[index]])
         else:
-            return HospitalGoalDescription(self.level, [self.agent_goals[index - num_box_goals]])
+            return HospitalGoalDescription(
+                self.level, [self.agent_goals[index - num_box_goals]]
+            )
 
-    def num_sub_goals(self):
+    def num_sub_goals(self) -> int:
         """
         This function returns the number of sub goals contained in the goal description.
         It is meant to be used together with get_sub_goal
         """
         return len(self.goals)
 
-    def create_new_goal_description_of_same_type(self, goals):
+    def create_new_goal_description_of_same_type(
+        self, goals: list[GoalType]
+    ) -> HospitalGoalDescription:
         """
         This function just creates a new goal description, but is useful in domain-agnostic agent types where
         we wish to create new goal descriptions without referring to the domain.
         """
         return HospitalGoalDescription(self.level, goals)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         agent_goals_str = " and ".join(map(lambda goal: str(goal), self.agent_goals))
         box_goals_str = " and ".join(map(lambda goal: str(goal), self.box_goals))
         if len(agent_goals_str) > 0 and len(box_goals_str) > 0:
@@ -92,11 +103,11 @@ class HospitalGoalDescription:
         else:
             return agent_goals_str + box_goals_str
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, self.__class__):
             return self.goals == other.goals
         else:
             return False
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(tuple(self.goals))

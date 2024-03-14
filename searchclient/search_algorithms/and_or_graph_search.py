@@ -14,8 +14,17 @@
 import sys
 from copy import deepcopy
 
+from interface.actions import Action
+from interface.goal_description import GoalDescription
+from interface.state import State
 
-def and_or_graph_search(initial_state, action_set, goal_description, results):
+
+def and_or_graph_search(
+    initial_state: State,
+    action_set: list[list[Action]],
+    goal_description: GoalDescription,
+    results: callable,
+):
 
     # Here you should implement AND-OR-GRAPH-SEARCH. We are going to use a policy format, mapping from states to actions.
     # The algorithm should return a pair (worst_case_length, or_plan)

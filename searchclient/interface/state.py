@@ -18,7 +18,7 @@ from typing import Protocol, TYPE_CHECKING
 if TYPE_CHECKING is True:
     from interface.actions import Action
     from interface.level import Level
-    from interface.typing import PositionType, AgentType, BoxType, AgentGoalType, BoxGoalType
+    from interface.typing import PositionType, AgentType, BoxType
 
 
 class State(Protocol):
@@ -52,8 +52,8 @@ class State(Protocol):
 
     def __repr__(self) -> str: ...
         
-    def __eq__(self, other) -> bool: ...
+    def __eq__(self, other: State) -> bool: ...
 
-    def __ne__(self, other) -> bool: ...
+    def __ne__(self, other: State) -> bool: ...
 
     def __hash__(self) -> int: ...

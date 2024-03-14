@@ -30,7 +30,14 @@ git push origin main
 
 ## Requirements
 
-The server requires at least a JRE for Java 17, and has been tested with OpenJDK.
+To complete assignments, it is required that you can execute Java programs compiled for the most recent Java release. 
+You should therefore make sure to have an updated version of a Java Development Kit (JDK) installed before the continuing. 
+Both Oracle JDK and OpenJDK will do. Additionally, you should make sure your PATH variable is configured 
+so that `java` is available in your command-line interface (command prompt/terminal). Run 
+```shell
+java -version
+```
+from the command line to check which version your path is set up to use. It should be the version you just installed.  
 
 The Python searchclient has been tested with Python 3.9, but should work with versions of Python above 3.7.
 The searchclient requires the 'psutil' package to monitor its memory usage; the package can be installed with pip:
@@ -64,6 +71,16 @@ For instance, to use A* search with a goal count heuristic, on the same level as
 ```shell
 java -jar server.jar -g -s 300 -t 180 -c "python searchclient/searchclient.py -astar -goalcount" -l levels/SAD1.lvl
 ```
+
+Agent types:
+The folder 'agent_types' contains multiple different type of agents which can be selected using the command line:
+
+* 'classic' - A classic planning agent using GRAPH-SEARCH. Selected by default.
+* 'decentralised' - A planning agent using DECENTRALISED-AGENTS. Select by adding "-decentralised" to the command line.
+* 'helper' - A planning agent using the helper agent algorithm. Select by adding "-helper" to the command line.
+* 'non_deterministic' - A planning agent using AND-OR-GRAPH-SEACH with a broken executor. Select by adding "-nondeterministic" to the command line.
+
+We can then combine different types of frontiers, action libraries and agent type.
 
 ## Debugging
 

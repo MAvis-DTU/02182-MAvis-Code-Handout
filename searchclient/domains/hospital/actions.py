@@ -49,26 +49,7 @@ direction_deltas = {
 
 Position = Tuple[int, int] # Only for type hinting
 
-class Action(Protocol):
-    name: str
-
-    @abstractmethod
-    def is_applicable(self, agent_index: int, state: h_state.HospitalState) -> bool:
-        ...
-
-    @abstractmethod
-    def result(self, agent_index: int, state: h_state.HospitalState):
-        ...
-    
-    @abstractmethod
-    def conflicts(self, agent_index: int, state: h_state.HospitalState) -> tuple[list[Position], list[Position]]:
-        ...
-
-    def __repr__(self) -> str:
-        return self.name
-
-
-class NoOpAction(Action):
+class NoOpAction:
 
     def __init__(self):
         self.name = "NoOp"
@@ -85,9 +66,12 @@ class NoOpAction(Action):
         destinations = [current_agent_position]
         boxes_moved = []
         return destinations, boxes_moved
+    
+    def __repr__(self) -> str:
+        return self.name
 
 
-class MoveAction(Action):
+class MoveAction:
 
     def __init__(self, agent_direction):
         self.agent_delta = direction_deltas.get(agent_direction)
@@ -114,9 +98,12 @@ class MoveAction(Action):
         # Since a Move action never moves a box, we can just return the empty value.
         boxes_moved = []
         return destinations, boxes_moved
+    
+    def __repr__(self) -> str:
+        return self.name
 
 
-class PushAction(Action):
+class PushAction:
 
     def __init__(self, agent_direction, box_direction):
         self.agent_delta = direction_deltas.get(agent_direction)
@@ -149,9 +136,12 @@ class PushAction(Action):
         destinations = [new_box_position]
         boxes_moved = [old_box_position]
         return destinations, boxes_moved
+    
+    def __repr__(self) -> str:
+        return self.name
 
 
-class PullAction(Action):
+class PullAction:
 
     def __init__(self, agent_direction, box_direction):
         self.agent_delta = direction_deltas.get(agent_direction)
@@ -184,6 +174,9 @@ class PullAction(Action):
         destinations = [new_agent_position]
         boxes_moved = [current_box_position]
         return destinations, boxes_moved
+    
+    def __repr__(self) -> str:
+        return self.name
 
 
 

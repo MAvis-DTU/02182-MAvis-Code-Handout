@@ -79,6 +79,7 @@ The folder 'agent_types' contains multiple different type of agents which can be
 * 'decentralised' - A planning agent using DECENTRALISED-AGENTS. Select by adding "-decentralised" to the command line.
 * 'helper' - A planning agent using the helper agent algorithm. Select by adding "-helper" to the command line.
 * 'non_deterministic' - A planning agent using AND-OR-GRAPH-SEACH with a broken executor. Select by adding "-nondeterministic" to the command line.
+* 'robot' - A planning agent using the robot agent that controls the physical robots. Select by adding "-robot <'IP'>" to the command line.
 
 We can then combine different types of frontiers, action libraries and agent type.
 
@@ -106,3 +107,7 @@ To set the max memory usage to 4GB:
 java -jar server.jar -g -s 300 -t 180 -c "python searchclient/searchclient.py --max-memory 4g" -l levels/SAD1.lvl
 ```
 Avoid setting max memory usage too high, since it will lead to your OS doing memory swapping which is terribly slow.
+
+### Router Connection Information for robots 
+Name:     **Pepper**  
+Password: **60169283**

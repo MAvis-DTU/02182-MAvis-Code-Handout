@@ -19,12 +19,16 @@ from agent_types.classic import classic_agent_type
 from agent_types.decentralised import decentralised_agent_type
 from agent_types.helper import helper_agent_type
 from agent_types.non_deterministic import non_deterministic_agent_type
+from agent_types.goal_recognition import goal_recognition_agent_type
+from agent_types.robot import robot_agent_type
 from domains.hospital import *
 from strategies.bfs import FrontierBFS
 from strategies.dfs import FrontierDFS
 from strategies.bestfirst import FrontierAStar, FrontierGreedy
+from robot_interface import *
 
 from utils import read_line
+
 
 def load_level_file_from_server():
     lines = []
@@ -33,7 +37,15 @@ def load_level_file_from_server():
         lines.append(line)
         if line.startswith("#end"):
             break
+
     return lines
+
+
+def load_level_file_from_path(path):
+    with open(path, "r") as f:
+        lines = f.readlines()
+        lines = list(map(lambda line: line.strip(), lines))
+        return lines
 
 
 def parse_command_line_arguments():
@@ -42,6 +54,8 @@ def parse_command_line_arguments():
     parser.add_argument('--max-memory', metavar='<GB>', type=str, default="4g",
                         help='The maximum memory usage allowed in GB (soft limit, default 4g).')
 
+    parser.add_argument('-level', type=str, default="", help="Load level file directly from the file system instead of readback from the server")
+    parser.add_argument('-ip', type=str, default="", help="The IP-address of the physical robot which will execute the commands when using the robot agent type")
 
     strategy_group = parser.add_mutually_exclusive_group()
     strategy_group.add_argument('-bfs', action='store_const', dest='strategy', const='bfs',
@@ -59,7 +73,11 @@ def parse_command_line_arguments():
     heuristic_group.add_argument('-advancedheuristic', action='store_const', dest='heuristic', const='advanced',
                                  help='Use an advanced heuristic.')
 
-             
+    action_library_group = parser.add_mutually_exclusive_group()
+    action_library_group.add_argument('-defaultactions', action='store_const', dest='action_library', const='default',
+                                      help='Use the default action library.')
+    action_library_group.add_argument('-sticky', action='store_const', dest='action_library', const='sticky',
+                                      help='Use an action library with sticky goals.')
 
     agent_type_group = parser.add_mutually_exclusive_group()
     agent_type_group.add_argument('-classic', action='store_const', dest='agent_type', const='classic',
@@ -70,6 +88,11 @@ def parse_command_line_arguments():
                                   help='Use a helper agent type.')
     agent_type_group.add_argument('-nondeterministic', action='store_const', dest='agent_type', const='nondeterministic',
                                   help='Use a non deterministic agent type.')
+    agent_type_group.add_argument('-goalrecognition', action='store_const', dest='agent_type', const='goalrecognition',
+                                  help='Use a goal recognition agent type.')
+    agent_type_group.add_argument('-robot', action='store_const', dest='agent_type', const='robot',
+                                  help='Use a physical robot!')
+
 
     args = parser.parse_args()
 
@@ -81,25 +104,28 @@ def parse_command_line_arguments():
     max_memory_gb = int(max_memory_gb_match.group(1))
     memory.max_usage = max_memory_gb * 1024 * 1024 * 1024
 
-    return args.strategy, args.heuristic, args.agent_type
+    return args.strategy, args.heuristic, args.action_library, args.agent_type, args.level, args.ip
 
 
 if __name__ == '__main__':
 
-    strategy_name, heuristic_name, agent_type_name = parse_command_line_arguments()
+    strategy_name, heuristic_name, action_library_name, agent_type_name, level_path, robot_ip = parse_command_line_arguments()
 
     # Construct client name by removing all missing arguments and joining them together into a single string
-    name_components = [agent_type_name, strategy_name, heuristic_name]
+    name_components = [agent_type_name, strategy_name, heuristic_name, action_library_name]
     client_name = " ".join(filter(lambda name: name is not None, name_components))
 
     # Send client name to server
     print(client_name, flush=True)
 
-    # Load the level from the server
-    level_lines = load_level_file_from_server()
+    # Load the level from the server unless level path is specified
+    level_lines = load_level_file_from_path(level_path) if level_path else load_level_file_from_server()
     # Domain name is always second line in file
     domain_name = level_lines[1]
 
+    # If no specific action library is requested, we implicitly assume it to be the "default" action library
+    if action_library_name is None:
+        action_library_name = 'default'
 
     # Setup domain specific structures
     level = None
@@ -113,8 +139,8 @@ if __name__ == '__main__':
         goal_description = HospitalGoalDescription(level, level.box_goals + level.agent_goals)
 
         # Construct the requested action library
-        action_library = DEFAULT_HOSPITAL_ACTION_LIBRARY
-            
+        if action_library_name == 'default':
+            action_library = DEFAULT_HOSPITAL_ACTION_LIBRARY
 
         # Construct the requested heuristic
         if heuristic_name == 'goalcount':
@@ -157,6 +183,18 @@ if __name__ == '__main__':
         helper_agent_type(level, initial_state, action_library, goal_description, frontier)
     elif agent_type_name == 'nondeterministic':
         non_deterministic_agent_type(level, initial_state, action_library, goal_description)
+    elif agent_type_name == 'goalrecognition':
+        goal_recognition_agent_type(level, initial_state, action_library, goal_description, frontier)
+    elif agent_type_name == 'robot':
+        if not robot_ip:
+            raise ValueError("You must also specify which robot ip address to use when using the robot agent type!")
+        try:
+            robot_agent_type(level, initial_state, action_library, goal_description, frontier, robot_ip)
+        except Exception as e:
+            print("Robot agent terminated with error", e)
+            raise
+
+        robot.shutdown()
     else:
         print(f"Unrecognized agent type! {agent_type_name}", file=sys.stderr)
 

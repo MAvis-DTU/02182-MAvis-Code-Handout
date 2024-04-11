@@ -30,7 +30,7 @@ Using the robot agent type differs from previous agent types.
     replacing it with calls to the 'robot' interface.
 """
 from utils import *
-from robotinterface import * 
+from robot_interface import * 
 from domains.hospital.actions import ROBOT_ACTION_LIBRARY
 from search_algorithms.graph_search import graph_search
 import time

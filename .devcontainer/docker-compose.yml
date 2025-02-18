@@ -1,0 +1,27 @@
+services:
+  02182-devcontainer:
+    build:
+      dockerfile: Dockerfile
+    container_name: 02182-devcontainer
+    volumes:
+      - ../..:/workspaces:cached
+    environment:
+      - DISPLAY=novnc:0.0
+    depends_on:
+      - novnc
+    networks:
+      - x11
+    command: sleep infinity
+  novnc:
+    image: theasp/novnc:latest
+    environment:
+      # Adjust to your screen resolution
+      - DISPLAY_WIDTH=1920
+      - DISPLAY_HEIGHT=1080
+      - RUN_XTERM=no
+    ports:
+      - 8080:8080
+    networks:
+      - x11
+networks:
+  x11:

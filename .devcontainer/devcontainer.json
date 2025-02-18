@@ -1,0 +1,22 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "02182-devcontainer",
+
+	// FOR WINDOWS AND DEBIAN-BASED SYSTEMS
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	// END WINDOWS AND DEBIAN-BASED SYSTEMS
+	
+	// FOR MAC AND ARCH-BASED SYSTEMS
+	// "dockerComposeFile": "docker-compose.yml",
+	// "service": "02182-devcontainer",
+	// END MAC AND ARCH-BASED SYSTEMS	
+	
+	"postCreateCommand": "bash .devcontainer/post_create_setup.sh",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+}

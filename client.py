@@ -58,8 +58,8 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description="Search-client for MAvis using state-space graph search.\n"
                     "Example usage:\n"
-                    "  python client.py classic --strategy bfs --heuristic goalcount\n"
-                    "  python client.py robot --ip 192.168.1.100 --strategy astar",
+                    "  python3 client.py classic --strategy bfs\n"
+                    "  python3 client.py robot --ip 192.168.1.100 --strategy astar  --heuristic goalcount",
         formatter_class=argparse.RawTextHelpFormatter
     )
 

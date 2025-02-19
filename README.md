@@ -13,7 +13,10 @@ git clone --bare https://github.com/MAvis-DTU/02182-MAvis-Code-Handout.git
 cd 02182-MAvis-Code-Handout.git
 git push --mirror https://github.com/dtu-student-123/your-repo.git
 cd ..
+# Linux based systems
 rm -rf 02182-MAvis-Code-Handout.git
+# Powershell
+rm -r -fo 02182-MAvis-Code-Handout.git
 ```
 3. Add handout repository as a remote in your private repo:
 ```shell

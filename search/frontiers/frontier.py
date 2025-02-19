@@ -24,7 +24,7 @@ class Frontier[T: Hashable](ABC):
 
     To implement a concrete subclass of Frontier, the following methods must
     be provided: `_add`, `_pop`, and `_clear`. For an example implementation,
-    see FrontierBFS.
+    see BFSFrontier.
 
     Maintains a multiset (Counter) of states for efficient membership checks.
 
@@ -35,7 +35,7 @@ class Frontier[T: Hashable](ABC):
     case `_add`, `_pop`, and `_clear`. As long as a class has an abstract
     method, it cannot be instantiated, so the code `frontier = Frontier()`
     would fail. Subclasses should define these methods to allow them to be
-    instantiated, such as `FrontierBFS` does. This way, we can define all the
+    instantiated, such as `BFSFrontier` does. This way, we can define all the
     common frontier methods in this class, and let the subclasses only care
     about the behaviour that is specific to them, e.g. FIFO/LIFO queues for
     BFS/DFS frontiers.

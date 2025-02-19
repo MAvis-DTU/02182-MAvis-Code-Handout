@@ -26,19 +26,19 @@ class PriorityQueue[T]:
     a best-first search.
 
     The elements are stored in a queue as a triplet (priority, count, element).
-    Python sorts tuples by comparing the first position and if these tie
-    progressing to the next position until it either finds a position in the
-    tuples where they differ or all positions has been compared (in which case
-    the two tuples are identical. By storing the priority in the first
-    position, we ensures that the element with the lowest priority will be
+    Python sorts tuples lexicographically: by comparing the first position 
+    and if these tie, progressing to the next position until it either finds 
+    a position in the tuples where they differ or all positions has been compared 
+    (in which case the two tuples are identical). By storing the priority in the 
+    first position, we ensures that the element with the lowest priority will be
     placed in the front of the queue. The second 'count' component is used to
     break ties when two elements have the same priority. By using a
     monotonically increasing counter we ensure that:
 
-    1. In case of identical priorities elements are ordered by their
+    1. In case of identical priorities, elements are ordered by their
     insertion order (i.e. LIFO behaviour).
-    2. Since all elements has a unique count, we can never have a tie and
-    therefore never need to compare the element itself.
+    2. Since all elements have a unique count, we can never have a tie and
+    therefore never need to compare the element to itself.
 
     The entry finder stores a reference to all elements which ensures that we
     later can access the entry.
@@ -112,7 +112,7 @@ class PriorityQueue[T]:
 
 class BestFirstFrontier[T](Frontier[T]):
     """
-    A frontier for Best First Search algorithms.
+    A frontier for best-first search algorithms.
     """
 
     def __init__(self, heuristic: Heuristic):
@@ -136,11 +136,11 @@ class BestFirstFrontier[T](Frontier[T]):
 
     def f(self, element: T) -> int:
         raise NotImplementedError(
-            "FrontierBestFirst should not be directly used. Instead use a subclass overriding f()"
+            "BestFirstFrontier should not be directly used. Instead use a subclass overriding f()"
         )
 
 
-# The FrontierAStar and FrontierGreedy classes extend the FrontierBestFirst class, that is, they are
+# The AStarFrontier and GreedyFrontier classes extend the BestFirstFrontier class, that is, they are
 # exact copies of the above class but where the 'f' method is replaced.
 class AStarFrontier[T](BestFirstFrontier[T]):
     def f(self, element: T) -> int:

@@ -88,7 +88,7 @@ With the prerequisites installed, follow these steps:
 **FOR MAC AND ARCH:** Due to inefficient native graphics forwarding, Mac and Arch-based systems cannot efficiently run the server graphics natively. As a workaround [noVNC](https://novnc.com/info.html) have been used to forward the graphics via a webserver.    
 So to see the virtual environment, open [localhost:8080/vnc.html](http://localhost:8080/vnc.html) and press connect.  
 
-### Tips
+### Tips & Troubleshooting
 #### Selecting python interpreter
 As the client and the server uses different python versions, selecting the version you intend to use to run the code provides accurate [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense), and ensures the right version is used if running it directly from vscode (`F5`).  
 **Steps:**
@@ -105,6 +105,13 @@ To ensure packages are installed when building or rebuilding the devcontainer, a
 3. Rebuild the devcontainer
     1. Open the vscode command palette (`ctrl+shift+p` or `cmd+shift+p`)
     2. Run the `Dev Containers: Rebuild Container` command
+
+### X11 Problems
+1. Follow the Mac/Arch (noVNC) setup steps. Updating the [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json)
+2. Rebuild the devcontainer
+    1. Open the vscode command palette (`ctrl+shift+p` or `cmd+shift+p`)
+    2. Run the `Dev Containers: Rebuild Container` command
+3. Access the GUI on [localhost:8080/vnc.html](http://localhost:8080/vnc.html)
 
 ## Usage
 

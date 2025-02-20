@@ -163,7 +163,7 @@ by writing
 
 For more advanced debugging using vscode and the devcontainer, simply add the `--debug` flag when running the server, e.g.:
 ```shell
-java -jar server.jar -g -c "python3 client.py classic --debug" -l levels/SAD1.lvl
+java -jar server.jar -g -c "python3 client.py --debug classic" -l levels/SAD1.lvl
 ```
 **Note that the server will still timeout if the `-t` argument is given.**
 
@@ -174,7 +174,7 @@ The searchclient monitors its own process' memory usage and terminates the searc
 
 To set the max memory usage to 4GB:
 ```shell
-java -jar server.jar -g -s 300 -t 180 -c "python3 client.py classic --max-memory 4g" -l levels/SAD1.lvl
+java -jar server.jar -g -s 300 -t 180 -c "python3 client.py --max-memory 4g classic" -l levels/SAD1.lvl
 ```
 Avoid setting max memory usage too high, since it will lead to your OS doing memory swapping which is terribly slow.
 

@@ -145,7 +145,7 @@ java -jar server.jar -g -s 300 -t 180 -c "python3 client.py classic --strategy d
 For astar and greedy, the `--heuristic` argument must be passed, specifying which heuristic to use for the strategy. There are currently two available: `goalcount` and `advanced`
 For instance, to use astar search with the goalcount heuristic:
 ```shell
-java -jar server.jar -g -s 300 -t 180 -c "python3 client.py --strategy astar --heuristic goalcount" -l levels/SAD1.lvl
+java -jar server.jar -g -s 300 -t 180 -c "python3 client.py classic --strategy astar --heuristic goalcount" -l levels/SAD1.lvl
 ```
 
 ### Agent types

@@ -12,7 +12,7 @@
 # limitations under the License.
 from search import print_debug
 from search.domain import Level
-from search.domain.actions import NoOp, Action
+from search.domain.actions import NoOp, ActionLibrary
 
 from search.algorithms.graph_search import graph_search
 from search.frontiers.frontier import Frontier
@@ -20,7 +20,7 @@ from search.agents.server_communication import send_joint_action
 
 def decentralised_agent(
     level: Level,
-    action_library: list[Action],
+    action_library: ActionLibrary,
     frontier: Frontier,
 ):
     """
@@ -35,7 +35,6 @@ def decentralised_agent(
 
     # Here you should implement the DECENTRALISED-AGENTS algorithm.
     # You can use the 'classic' agent type as a starting point for how to communicate with the server, i.e.
-    # use 'print(joint_action_to_string(joint_action), flush=True)' to send a joint_action to the server and
-    # use 'parse_response(read_line())' to read back an array of booleans indicating whether each individual action
-    #   in the joint action succeeded.
+    # use 'send_joint_action' to send a joint_action to the server which will read back an array of booleans indicating
+    # whether each individual action in the joint action succeeded.
     raise NotImplementedError()

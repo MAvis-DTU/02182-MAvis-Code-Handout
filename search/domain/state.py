@@ -20,18 +20,18 @@ from typing import Self
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from search.domain.level import Level, Position, PositionAndIdentifier
-    from search.domain.actions import Action, JointAction, ActionSet, Plan
+    from search.domain.actions import JointAction, ActionSet, Plan
 
 # Set fixed seed for random shuffle (ensures deterministic runs)
 random.seed(a=0, version=2)
 
 class State:
     """
-    HospitalState stores all *dynamic* information regarding a state in the hospital state,
+    State stores all *dynamic* information regarding a state in the hospital state,
     that is, it only contains the agent positions and the box positions.
     Both agent and box positions are stored in the format (position, character).
     Note that the index of a particular agents and boxes is *not* necessarily fixed across states.
-    The *static* information is instead stored in the HospitalLevel class in the level.py file.
+    The *static* information is instead stored in the Level class in the level.py file.
     This separation greatly reduces the memory usage since we only store static information once.
     """
 
@@ -128,6 +128,7 @@ class State:
             self.level,
             copy.copy(self.agent_positions),
             copy.copy(self.box_positions),
+            self
         )
 
         for agent_index, action in enumerate(joint_action):
@@ -161,7 +162,7 @@ class State:
                 return False
         return True
 
-    def get_applicable_actions(self, action_set: ActionSet) -> ActionSet:
+    def get_applicable_actions(self, action_set: ActionSet) -> list[JointAction]:
         """Returns a list of all applicable joint_action in this state"""
         num_agents = len(self.agent_positions)
 

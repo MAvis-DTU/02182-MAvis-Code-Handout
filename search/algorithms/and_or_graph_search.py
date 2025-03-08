@@ -14,7 +14,6 @@ from typing import Callable
 
 from search.domain import State
 from search.domain.actions import ActionSet, JointAction
-from search.domain.goal_description import GoalDescription
 from search import print_debug
 
 
@@ -22,13 +21,15 @@ type Policy = dict[State, JointAction]
 
 type ResultsFunction[S] = Callable[[S, JointAction], list[S]]
 
+MAX_RECURSION = 496
 
 def and_or_graph_search(
     initial_state: State,
     action_set: ActionSet,
-    goal_description: GoalDescription,
+    goal_test: Callable[[State], bool],
     results: ResultsFunction,
     iterative_deepening: bool = True,
+    allow_cyclic: bool = False,
 ) -> tuple[int, Policy] | tuple[None, None]:
     # Here you should implement AND-OR-GRAPH-SEARCH. We are going to use a policy format, mapping from states to actions.
     # The algorithm should return a pair (worst_case_length, or_plan)

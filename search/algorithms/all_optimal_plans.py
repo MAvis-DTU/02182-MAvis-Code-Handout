@@ -17,7 +17,7 @@ from collections import deque
 
 from search.domain.goal_description import GoalDescription
 from search.domain import State
-from search.domain.actions import Action, JointAction, ActionSet
+from search.domain.actions import Action, ActionSet
 from search.frontiers.frontier import Frontier
 from search.algorithms.monitoring import memory_tracker, search_timer, print_search_status
 
@@ -31,7 +31,7 @@ except ImportError:
 class MultiParentNode:
     """
     In order to represent the nodes of a solution graph, we need to track
-    additional information beyond that contained in the HospitalState class.
+    additional information beyond that contained in the State class.
     For this reason, we here provide a wrapper class you can use for your
     ALL_OPTIMAL_PLANS search.
 
@@ -129,18 +129,19 @@ def visualize_solution_graph(solution_graph: MultiParentNode):
         return subgraph.id
 
     visitor(solution_graph)
-    graph.render("all_optimal_paths", view=True)
+    graph.render("all_optimal_paths", directory="tmp")
 
 def all_optimal_plans(
     initial_state: State,
     action_set: list[Action],
     possible_goals: GoalDescription,
     frontier: Frontier[MultiParentNode],
+    visualize: bool = False,
 ) -> tuple[bool, MultiParentNode|None]:
     """
     An implementation of the ALL_OPTIMAL_PLANS algorithm as described in the
     MAvis3 assignment description.
-    - initial_state: A instance of HospitalState representing the initial
+    - initial_state: A instance of State representing the initial
     state of the level
     - action_set: A list of possible actions
     - possible_goals: A list of goal descriptions, one of which the agent is

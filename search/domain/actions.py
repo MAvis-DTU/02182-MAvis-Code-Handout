@@ -61,7 +61,8 @@ direction_deltas: dict[Direction, Position] = {
 
 type JointAction = tuple[Action]
 type Plan = list[JointAction]
-type ActionSet = list[JointAction]
+type ActionLibrary = list[Action]
+type ActionSet = list[ActionLibrary]
 
 
 class Action(ABC):
@@ -88,6 +89,9 @@ class Action(ABC):
         if not isinstance(other, Action):
             return False
         return self.name == other.name
+    
+    def __hash__(self) -> int:
+        return hash(self.name)
 
 
 class NoOp(Action):
@@ -108,9 +112,6 @@ class NoOp(Action):
         destinations = [current_agent_position]
         boxes_moved = []
         return destinations, boxes_moved
-
-    def __repr__(self) -> str:
-        return self.name
 
 
 class Move(Action):
@@ -141,9 +142,6 @@ class Move(Action):
         # Since a Move action never moves a box, we can just return the empty value.
         boxes_moved = []
         return destinations, boxes_moved
-
-    def __repr__(self):
-        return self.name
 
 
 class Push(Action):
@@ -187,9 +185,6 @@ class Push(Action):
         boxes_moved = [old_box_position]
         return destinations, boxes_moved
 
-    def __repr__(self):
-        return self.name
-
 
 class Pull(Action):
     def __init__(self, agent_direction: Direction, box_direction: Direction):
@@ -232,12 +227,9 @@ class Pull(Action):
         boxes_moved = [current_box_position]
         return destinations, boxes_moved
 
-    def __repr__(self):
-        return self.name
-
 
 # An action library for the multi agent pathfinding
-DEFAULT_MAPF_ACTION_LIBRARY = [
+DEFAULT_MAPF_ACTION_LIBRARY: ActionLibrary = [
     NoOp(),
     Move("N"),
     Move("S"),
@@ -247,7 +239,7 @@ DEFAULT_MAPF_ACTION_LIBRARY = [
 """Action library for the multi agent pathfinding (MAPF) domain. Note that there are no actions involving boxes."""
 
 # An action library for the full hospital domain
-DEFAULT_HOSPITAL_ACTION_LIBRARY = [
+DEFAULT_HOSPITAL_ACTION_LIBRARY: ActionLibrary = [
     NoOp(),
     
     Move("N"),
@@ -280,7 +272,6 @@ DEFAULT_HOSPITAL_ACTION_LIBRARY = [
     Pull("W", "N"),
     Pull("W", "S"),
     Pull("W", "W"),
-
 ]
 """Default action library for the hospital domain."""
 

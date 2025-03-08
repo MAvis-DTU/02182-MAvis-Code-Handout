@@ -48,26 +48,24 @@ from the command line to check which version your path is set up to use. It shou
 The Python searchclient has been tested with Python 3.9, but should work with versions of Python above 3.7.
 The searchclient requires the pip packages outlined in the [Devcontainer](#devcontainer) section.
 
-To interact with the Pepper robots its python SDK, which is currently only python2 compatible, has to be installed. A guide to setup the SDK can be found in [PepperSetupGuide](./docs/PepperSetupGuide.pdf).
-
 ## Devcontainer
 To simplify the setup and installation of required dependencies, a [devcontainer](https://containers.dev/overview) has been created. This [docker](https://www.docker.com/) based development environment ensures you have all the necessary dependencies installed, and that your groups environment is the same, thus avoiding the "It works on my computer" cliché.
 
 The environment comes preconfigured with:
 - **Java (OpenJDK 17)** – Access via `java`
-- **Python 3.12** (for the client) – Access via `python3` - with the following pip dependencies, specified in [requirements.searchclient.txt](.devcontainer/requirements.searchclient.txt)
+- **Python 3.12** (for the client) – Access via `python3` - with the following pip dependencies, specified in [requirements.txt](.devcontainer/requirements.txt)
     - `psutil` to monitor its memory usage.
     - `debugpy` required to allow debugging through the java server
-    - `msgpack` to facilitate communication between the robot server and the client
-    - `numpy` to facilitate communication between the robot server and the client
+    - `numpy` to facilitate communication between the robot and the client
+    - `scp` to transfer data (images & audio) to and from the robots
+    - `qi` the Pepper SDK used to facilitate the communication with the robot
+        - **Note** that this package is only available for Unix-based systems (MacOS & Linux)
     - Non-required packages:
         - `opencv-python` intended for manipulating image data from the robots
         - `pupil-apriltags` required to process apriltags
         - `graphviz` required to visualize solution graphs
-- **Python 2.7** (for the robot server) – Access via `python2` - with the following pip dependencies, specified in [requirements.robotserver.txt](.devcontainer/requirements.robotserver.txt)
-    - `scp` to facilitate communication between the robot server and the actual robot
-    - `msgpack` to facilitate communication between the robot server and the client
-- **Naoqi SDK (Pepper Robot Python SDK)** – Can be imported in Python 2 (`import naoqi`)
+        - `pdoc` required to run the [docs.py](docs.py) interactive code documentation
+- **Graphviz** for visualizing solution graphs - Accessed through the python package.
 
 ### Setup
 To setup the devcontainer the following **prerequisites** need to be installed:
@@ -79,14 +77,14 @@ To setup the devcontainer the following **prerequisites** need to be installed:
 
 With the prerequisites installed, follow these steps:
 1. Open your repository in vscode
-2. **ONLY FOR MAC AND ARCH:** Replace the Windows/Debian configuration with the Mac/Arch configuration in [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json)
+2. **IF EXPERIENCING X11 PROBLEMS:** Replace the natively x11 supporting configuration with the noVNC configuration in [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json)
 2. Open the vscode command palette (`ctrl+shift+p` or `cmd+shift+p`)
 3. Run the `Dev Containers: Rebuild and Reopen in Container` command
     - The first build may take a while - check the logs to track progress.
     - Once your files appear in the Explorer (left panel), the devcontainer is ready.
 
-**FOR MAC AND ARCH:** Due to inefficient native graphics forwarding, Mac and Arch-based systems cannot efficiently run the server graphics natively. As a workaround [noVNC](https://novnc.com/info.html) have been used to forward the graphics via a webserver.    
-So to see the virtual environment, open [localhost:8080/vnc.html](http://localhost:8080/vnc.html) and press connect.  
+**IF EXPERIENCING X11 PROBLEMS:** Some systems cannot efficiently run the server graphics natively. As a workaround [noVNC](https://novnc.com/info.html) have been used to forward the graphics via a webserver.    
+To see the virtual GUI environment, open [localhost:8080/vnc.html](http://localhost:8080/vnc.html) and press connect.  
 
 ### Tips & Troubleshooting
 #### Selecting python interpreter
@@ -97,9 +95,9 @@ As the client and the server uses different python versions, selecting the versi
 3. Select the appropriate python version
 
 ### Adding pip packages
-To ensure packages are installed when building or rebuilding the devcontainer, add wanted pip packages to the [.devcontainer/requirements.searchclient.txt](.devcontainer/requirements.searchclient.txt) file and rebuild the container (vscode command `Dev Containers: Rebuild Container`).
+To ensure packages are installed when building or rebuilding the devcontainer, add wanted pip packages to the [.devcontainer/requirements.txt](.devcontainer/requirements.txt) file and rebuild the container (vscode command `Dev Containers: Rebuild Container`).
 
-### (Mac/Arch) changing the resolution of the virtual environment
+### (noVNC) changing the resolution of the virtual environment
 1. Open [.devcontainer/docker-compose.yml](.devcontainer/docker-compose.yml)
 2. Adjust the `DISPLAY_WIDTH` and `DISPLAY_HEIGHT` environment variables to your preference
 3. Rebuild the devcontainer
@@ -107,11 +105,11 @@ To ensure packages are installed when building or rebuilding the devcontainer, a
     2. Run the `Dev Containers: Rebuild Container` command
 
 ### X11 Problems
-1. Follow the Mac/Arch (noVNC) setup steps. Updating the [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json)
+1. Follow the noVNC setup steps. Updating the [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json)
 2. Rebuild the devcontainer
     1. Open the vscode command palette (`ctrl+shift+p` or `cmd+shift+p`)
     2. Run the `Dev Containers: Rebuild Container` command
-3. Access the GUI on [localhost:8080/vnc.html](http://localhost:8080/vnc.html)
+3. Access the GUI at [localhost:8080/vnc.html](http://localhost:8080/vnc.html)
 
 ## Usage
 
@@ -159,15 +157,17 @@ The `agents` folder contains agent types including:
 
 ## Debugging
 As communication with the java server is performed over stdout, `print(<something>)` does not work directly. 
-To get information sent to the terminal, you should use
-
-    print(<something>, file=sys.stderr)
-
-Note that the HospitalState has a nice string representation such that you can print states to the terminal 
-by writing
-
-    print(state, file=sys.stderr)
-
+To get information sent to the terminal, you should use `sys.stderr` or the alias `print_debug` from the `search` module:
+```python
+print(<something>, file=sys.stderr)
+# Or
+from search import print_debug
+print_debug(<something>)
+```
+Note that the State has a nice string representation such that you can print states to the terminal by writing
+```python
+print_debug(state)
+```
 For more advanced debugging using vscode and the devcontainer, simply add the `--debug` flag when running the server, e.g.:
 ```shell
 java -jar server.jar -g -c "python3 client.py --debug classic" -l levels/SAD1.lvl
@@ -192,6 +192,33 @@ python3 doc.py
 ```
 This should host a webserver accessible via `http://localhost:8080` (port can be changed in `doc.py`).
 
-## Router Connection Information for robots 
-Name:     **Pepper**  
-Password: **60169283**
+## Pepper robot quick guide
+**Connecting to the Pepper network:**
+1. Ensure the network router has been plugged in. Ask a teacher or TA if in doubt.
+2. Connect your laptop to the `Pepper` WiFi
+    - SSID: **Pepper**
+    - Password: **60169283**
+
+**Turning on Pepper:**
+1. Ensure the network router has been plugged in. Ask a teacher or TA if in doubt.
+2. Press the start button on the stomach behind the tablet once quickly.
+3. Light should come on in both eyes and shoulders.
+
+**Getting Pepper IP address:**
+1. Ensure Pepper is on and standing straight up
+2. Press the button on the stomach behind the tablet once quickly
+3. Pepper should say its IP address out loud.
+
+**Connecting to Pepper:**
+1. Ensure your laptop is connected to the `Pepper` network
+2. Use either the [robot/robot_client.py](robot/robot_client.py) or [client.py](client.py) to test the connection. Examples:
+    - [robot/robot_client.py](robot/robot_client.py): `python3 robot/robot_client.py INSERT_PEPPER_IP`
+    - [client.py](client.py): `java -jar server.jar -g -s 300 -c "python3 client.py robot --ip INSERT_PEPPER_IP" -l levels/MAsimplegoalrecognition.lvl`
+
+**Putting Pepper to sleep:**
+1. Press the button on the stomach behind the tablet **twice quickly**.
+2. Pepper should transition to its safe sleeping pose, cooling the motors and saving power.
+
+**Turning Pepper off:**
+1. Press and hold the the button on the stomach behind the tablet, till Pepper says *"Gnuk Gnuk"*.
+2. Pepper should now 

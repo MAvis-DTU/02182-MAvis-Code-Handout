@@ -30,13 +30,14 @@ def broken_results(state: State, action: JointAction) -> list[State]:
         return [standard_case]
 
 
-__CHANCE_OF_EXTRA_ACTION = 0.5
+CHANCE_OF_EXTRA_ACTION = 0.5
 
 
 def non_deterministic_agent(
     level: Level,
     action_library: list[Action],
     iterative_deepening: bool = True,
+    allow_cyclic: bool = False,
 ):
     """
 
@@ -50,7 +51,7 @@ def non_deterministic_agent(
 
     # Call AND-OR-GRAPH-SEARCH to compute a conditional plan
     worst_case_length, plan = and_or_graph_search(
-        initial_state, action_set, goal_description, broken_results, iterative_deepening
+        initial_state, action_set, goal_description.is_goal, broken_results, iterative_deepening, allow_cyclic
     )
 
     if worst_case_length is None or plan is None:
@@ -83,7 +84,7 @@ def non_deterministic_agent(
 
         # Broken executor in-determinism: After performing action, roll dice to check whether
         # action will be executed twice (only if it is still applicable)
-        is_broken = random.random() < __CHANCE_OF_EXTRA_ACTION
+        is_broken = random.random() < CHANCE_OF_EXTRA_ACTION
         is_applicable = current_state.is_applicable(joint_action)
         if is_broken and is_applicable:
             print_debug(

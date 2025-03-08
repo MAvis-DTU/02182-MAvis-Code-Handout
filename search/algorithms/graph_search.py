@@ -68,9 +68,9 @@ def graph_search(
     Some useful methods on the State class which you will need to use are:
     node.extract_plan() - Returns the list of actions used to reach this state.
     node.get_applicable_actions(action_set) - Returns a list containing the actions applicable in the state.
-    node.result(action) - Returns the new state reached by applying the action to the current state.
+    node.result(action) - Returns the new node reached by applying the action to the current node.
     For the GoalDescription class, you will need to use
-    goal_description.is_goal(node) - Returns true if the state is a goal state.
+    goal_description.is_goal(state) - Returns true if the state is a goal state.
     For debugging, remember that you can use print(node, file=sys.stderr) to get a representation of the state.
     You should also take a look at the frontiers in the strategies folder to see which methods they expose
     """
@@ -109,7 +109,6 @@ def graph_search(
         iterations += 1
 
         # Your code here...
-
         raise NotImplementedError()
 
 

@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from search import print_debug
-from search.domain import Level, Action
+from search.domain import Level, ActionLibrary
 
 from search.algorithms.graph_search import graph_search
 from search.frontiers.frontier import Frontier
@@ -20,7 +20,7 @@ from search.agents.server_communication import send_joint_action
 
 def classic_agent(
     level: Level,
-    action_library: list[Action],
+    action_library: ActionLibrary,
     frontier: Frontier,
 ):
     """

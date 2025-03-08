@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 # coding: utf-8
+# PYTHON_ARGCOMPLETE_OK
 #
 # Copyright 2021 The Technical University of Denmark
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +15,7 @@
 
 import argparse
 import re
+import argcomplete
 import debugpy
 
 from search.algorithms.monitoring import memory_tracker
@@ -33,7 +36,7 @@ from search.domain import (
     GoalCountHeuristic,
 )
 from search.frontiers import BFSFrontier, DFSFrontier, AStarFrontier, GreedyFrontier
-from robot.robot_interface import RobotInterface
+from robot.robot_client import RobotClient
 
 
 def load_level_file_from_server():
@@ -59,7 +62,7 @@ def create_parser():
         description="Search-client for MAvis using state-space graph search.\n"
                     "Example usage:\n"
                     "  python3 client.py classic --strategy bfs\n"
-                    "  python3 client.py robot --ip 192.168.1.100 --strategy astar  --heuristic goalcount",
+                    "  python3 client.py robot --ip 192.168.1.100 --strategy astar --heuristic goalcount",
         formatter_class=argparse.RawTextHelpFormatter
     )
 
@@ -84,7 +87,7 @@ def create_parser():
         help="Select the agent type to use",
     )
 
-    # Create a parent parser for strategy-related arguments
+    # Strategy-related arguments
     strategy_parent = argparse.ArgumentParser(add_help=False)
     strategy_parent.add_argument(
         "--strategy",
@@ -97,6 +100,22 @@ def create_parser():
         choices=["goalcount", "advanced"],
         help="Select the heuristic (only relevant for A* and Greedy)."
     )
+    
+    # And-Or-Graph-Search arguments
+    and_or_graph_search_parent = argparse.ArgumentParser(add_help=False)
+    and_or_graph_search_parent.add_argument(
+        "--no-iterative-deepening",
+        action="store_true",
+        default=False,
+        help="Disable iterative deepening"
+    )
+    and_or_graph_search_parent.add_argument(
+        "--cyclic",
+        action="store_true",
+        default=False,
+        help="Allow cyclic solutions"
+    )
+    
     # Classic agent subcommand
     classic_parser = subparsers.add_parser(
         "classic",
@@ -122,19 +141,14 @@ def create_parser():
     nondet_parser = subparsers.add_parser(
         "nondeterministic",
         help="Use a non-deterministic agent using AND-OR graph search",
-    )
-    nondet_parser.add_argument(
-        "--no-iterative-deepening",
-        action="store_true",
-        default=False,
-        help="Disable iterative deepening"
+        parents=[and_or_graph_search_parent]
     )
 
     # Goal recognition agent subcommand
     goalrec_parser = subparsers.add_parser(
         "goalrecognition",
         help="Use a goal recognition agent using the all optimal plans for the actor and AND-OR-GRAPH-SEARCH for the helper",
-        parents=[strategy_parent]
+        parents=[strategy_parent, and_or_graph_search_parent]
     )
 
     # Robot agent subcommand
@@ -152,8 +166,14 @@ def create_parser():
 
 def main():
     parser = create_parser()
+    argcomplete.autocomplete(parser)
     args = parser.parse_args()
 
+    if args.debug:
+        debugpy.listen(("localhost", 1234))
+        debugpy.wait_for_client()
+        debugpy.breakpoint()
+    
     # Set memory tracker (same as before)
     max_memory_match = re.match(r"([0-9]+)g", args.max_memory)
     if not max_memory_match:
@@ -172,11 +192,6 @@ def main():
 
     # Send client name to server
     print(client_name, flush=True)
-
-    if args.debug:
-        debugpy.listen(("localhost", 1234))
-        debugpy.wait_for_client()
-        debugpy.breakpoint()
 
     # Load the level from the server unless level path is specified
     level_lines = (
@@ -223,6 +238,10 @@ def main():
         frontier = GreedyFrontier(heuristic)
     else:
         raise ValueError(f"Invalid strategy: {strategy_name}")
+    
+    # Prepare agent arguments
+    enable_iterative_deepening = not getattr(args, "no_iterative_deepening", False)
+    allow_cyclic = getattr(args, "cyclic", True)
 
     # Run the requested agent type
     if (agent_type_name := getattr(args, "agent_type")) == "classic":
@@ -232,22 +251,14 @@ def main():
     elif agent_type_name == "helper":
         helper_agent(level, action_library, frontier)
     elif agent_type_name == "nondeterministic":
-        non_deterministic_agent(level, action_library, not getattr(
-            args, "no_iterative_deepening", False))
+        non_deterministic_agent(level, action_library, enable_iterative_deepening)
     elif agent_type_name == "goalrecognition":
-        goal_recognition_agent(level, action_library, frontier)
+        goal_recognition_agent(level, action_library, frontier, enable_iterative_deepening, allow_cyclic)
     elif agent_type_name == "robot":
         if not (robot_ip := getattr(args, "ip", None)):
             raise ValueError(
                 "IP adress required when using the robot agent type!")
-        robot = RobotInterface(robot_ip)
-        try:
-            robot_agent(level, action_library, frontier, robot)
-        except Exception as e:
-            print("Robot agent terminated with error", e)
-            robot.shutdown()
-            raise
-        robot.shutdown()
+        robot_agent(level, action_library, frontier, robot_ip)
     else:
         ValueError(f"Unrecognized agent type: {agent_type_name}")
 

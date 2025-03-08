@@ -1,8 +1,10 @@
 psutil
 debugpy
 numpy
-msgpack
 opencv-python
 pupil-apriltags
 graphviz
 pdoc
+qi
+scp
+argcomplete

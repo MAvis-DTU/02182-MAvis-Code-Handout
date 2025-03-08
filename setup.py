@@ -11,11 +11,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
-    name="search",
+    name="mavis",
     version="1.0.0",
-    packages=find_packages(),
+    packages=["robot","search"],
     python_requires=">=3.12",
 )

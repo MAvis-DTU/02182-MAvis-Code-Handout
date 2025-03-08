@@ -3,16 +3,16 @@
 {
 	"name": "02182-devcontainer",
 
-	// FOR WINDOWS AND DEBIAN-BASED SYSTEMS
+	// FOR NATIVELY SUPPORTING X11 FORWARDING SYSTEMS
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
-	// END WINDOWS AND DEBIAN-BASED SYSTEMS
+	// END NATIVELY SUPPORTING X11 FORWARDING SYSTEMS
 	
-	// FOR MAC AND ARCH-BASED SYSTEMS
+	// noVNC SETUP
 	// "dockerComposeFile": "docker-compose.yml",
 	// "service": "02182-devcontainer",
-	// END MAC AND ARCH-BASED SYSTEMS	
+	// END noVNC SETUP
 	
 	"postCreateCommand": "bash .devcontainer/post_create_setup.sh",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",

@@ -11,35 +11,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Working with the robot agent type is slightly different from the previous agent types.
-- First of all, you will need to install some additional packages 'numpy' and 'msgpack'.
-  Both can be install using pip, e.g., 'pip install numpy msgpack'. The exact details might
-  depend on your platform and Python installation.
-- Secondly, we will not be using the Java server when working with the robot, and the command
-  used to invoke the search client on the terminal is therefore slightly different for example:
-    'python searchclient/searchclient.py -robot -ip 192.168.0.102 -level levels/SAsoko1_04.lvl'
-  will run the searchclient using the 'robot' agent type, on the robot with the ip 192.168.0.102.
-- In order to connect to the robots, you need to be connected to the R2DTU hotspot. In order to
-  reduce the load on this hotspot, please disconnect from this hotspot between your sessions.
-- We have two robots, identifiable based upon the 'R1' and 'R2' on their tablets.
-  The ip addresses of the two robots are
-    R1: '192.168.0.105'
-    R2: '192.168.0.106'
-- A good start would be to start with something similar to the 'classic' agent type and then
-  replace the 'print(joint_action_to_string(joint_action), flush=True)' with calls to the 'robot'
-  interface.
+Using the robot agent type differs from previous agent types.
+  - First, you need to have the server running: `python2 robot_server.py`
+  - Secondly, you don't need the Java server for the robot. So, the command
+    to start the search client in the terminal is different, for example:
+        'python client.py --level levels/SAsoko1_04.lvl robot --ip 192.168.1.103'
+    runs the searchclient with the 'robot' agent type on the robot at IP 192.168.0.102.
+
+  - To connect to the robots, connect to the Pepper hotspot.
 """
 import math
 
-from search.domain import Level, ActionSet
-from robot.robot_interface import RobotInterface
+from search.domain import Level, ActionLibrary
 from search.frontiers import Frontier
+from robot.robot_client import RobotClient
 
 def robot_agent(
     level: Level,
-    action_library: ActionSet,
+    action_library: ActionLibrary,
     frontier: Frontier,
-    robot: RobotInterface,
+    robot_ip: str,
 ):
     # Get the initial state and goal description from the level
     initial_state = level.initial_state()
@@ -50,22 +41,26 @@ def robot_agent(
     
     # Write your robot agent type here
     # What follows is a small example of how to interact with the robot.
-    # You should browse through 'robot_interface.py' to get a full overview of all the available functionality
+    # You should browse through 'robot/robot_client.py' to get a full overview of all the available functionality
+    
+    # Initialize the robot client
+    robot = RobotClient(robot_ip, vision=True)
+    
+    try:
+      # Communicate using its speech synthesis
+      robot.say("Hello I am Pepper!")
 
-    # Wake up robot, if you are the first to use it, and run motor check
-    robot.wake_up()
-
-    # Communicate using its speech synthesis
-    robot.say("Hello I am Pepper!")
-
-    # Pre-scripted animation
-    robot.perform_animation("animations/Stand/Gestures/Hey_1")
-
-    # Drive 0.5 meter forward
-    robot.move(0.5, 0.0)
-    # Turn around 90 degrees (pi/2 radians)
-    robot.turn(math.pi / 2.0)
-    # Drive 0.5 meter to the left
-    robot.move(0.0, 0.5)
-    # Turn back 90 degrees (-pi/2 radians)
-    robot.turn(-math.pi / 2.0)
+      # Drive 0.2 meters forward and backwards
+      robot.forward(0.2)
+      robot.backward(0.2)
+      
+      # Turn around 30 degrees back and forth
+      theta = math.radians(30)
+      robot.turn_counter_clockwise(theta)
+      robot.turn_clockwise(theta)
+    except Exception as e:
+      print("Robot agent terminated with error", e)
+      robot.shutdown()
+      raise
+    
+    robot.shutdown()

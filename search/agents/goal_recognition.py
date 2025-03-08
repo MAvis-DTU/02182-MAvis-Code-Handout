@@ -16,7 +16,7 @@ import random
 
 from search import print_debug
 from search.domain import Level, State, GoalDescription
-from search.domain.actions import Action, JointAction, ActionSet, NoOp
+from search.domain.actions import Action, JointAction, ActionSet, NoOp, ActionLibrary
 
 from search.algorithms.all_optimal_plans import MultiParentNode, all_optimal_plans
 from search.algorithms.and_or_graph_search import and_or_graph_search
@@ -24,8 +24,8 @@ from search.frontiers.frontier import Frontier
 from search.agents.server_communication import send_joint_action
 
 
-__ACTOR_AGENT_INDEX = 0
-__HELPER_AGENT_INDEX = 1
+ACTOR_AGENT_INDEX = 0
+HELPER_AGENT_INDEX = 1
 
 
 class DisjunctiveGoalDescription:
@@ -40,9 +40,9 @@ class DisjunctiveGoalDescription:
         # possible_goal_descriptions should be a list of goals
         self.possible_goals = possible_goal_descriptions
 
-    def is_goal(self, belief_node: State) -> bool:
+    def is_goal(self, belief_node: GoalRecognitionNode) -> bool:
         for possible_goal in self.possible_goals:
-            if possible_goal.is_goal(belief_node):
+            if possible_goal.is_goal(belief_node.state):
                 return True
         return False
 
@@ -65,11 +65,15 @@ class GoalRecognitionNode:
     def get_applicable_actions(self, action_set: ActionSet) -> list[Action]:
         # Here we are only interested in the actions of the helper, but state.get_applicable_actions will return a list
         # of joint actions, where the actor action is always NoOp().
+        # Note there is lots of room for improvement here, e.g. using the optimal actions from the solution graph for the
+        # actor agent instead of the full action set. This is just a simple example.
         applicable_joint_actions = self.state.get_applicable_actions(action_set)
         applicable_actions = [
-            joint_action[__HELPER_AGENT_INDEX] for joint_action in applicable_joint_actions
+            joint_action[HELPER_AGENT_INDEX] for joint_action in applicable_joint_actions
         ]
         return applicable_actions
+    
+
 
     def result(self, joint_action: JointAction) -> GoalRecognitionNode:
         # The result method should return a new GoalRecognitionNode which contains the resulting state and the
@@ -104,8 +108,10 @@ def solution_graph_results(
 
 def goal_recognition_agent(
     level: Level,
-    action_library: ActionSet,
+    action_library: ActionLibrary,
     frontier: Frontier[GoalRecognitionNode],
+    iterative_deepening: bool = True,
+    allow_cyclic: bool = False,
 ):
     """
     

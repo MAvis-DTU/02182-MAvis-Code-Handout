@@ -3,25 +3,25 @@
         "username": "nao",
         "vision_port": 12346,
         "password": "pepper",
-        "port": 1234
+        "port": 5000
     },
     "192.168.1.115": {
         "username": "nao",
         "vision_port": 12346,
         "password": "Sokrates1",
-        "port": 1234
+        "port": 5010
     },
     "192.168.1.103": {
         "username": "nao",
         "vision_port": 12346,
         "password": "pepper",
-        "port": 1234
+        "port": 5020
     },
     "192.168.1.105": {
         "comment": "CURRENTLY NOT CONNECTING!",
         "username": "nao",
-        "vision_port": 12346,
         "password": "pepper",
-        "port": 1234
+        "port": 5030,
+        "vision_port": 12346
     }
 }

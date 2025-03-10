@@ -321,7 +321,7 @@ class RobotClient:
 
         # start recording
         robot.recorder.startMicrophonesRecording(
-            "/home/nao/test.wav", "wav", 16000, [0, 0, 1, 0])
+            "/home/nao/test.wav", "wav", 16000, channels)
         print_debug('Started recording')
 
         # look slightly up

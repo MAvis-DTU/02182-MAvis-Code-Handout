@@ -8,3 +8,4 @@ pdoc
 qi
 scp
 argcomplete
+openai-whisper

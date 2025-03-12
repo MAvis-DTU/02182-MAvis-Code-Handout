@@ -4,7 +4,7 @@ services:
       dockerfile: Dockerfile
     container_name: 02182-devcontainer
     volumes:
-      - ../..:/workspaces:cached
+      - ../:/workspaces/mavis_client:cached
     environment:
       - DISPLAY=novnc:0.0
     depends_on:

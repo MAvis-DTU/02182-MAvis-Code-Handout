@@ -7,6 +7,7 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/mavis_client,type=bind,consistency=cached",
 	// END NATIVELY SUPPORTING X11 FORWARDING SYSTEMS
 	
 	// noVNC SETUP
@@ -15,7 +16,7 @@
 	// END noVNC SETUP
 	
 	"postCreateCommand": "bash .devcontainer/post_create_setup.sh",
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"workspaceFolder": "/workspaces/mavis_client",
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

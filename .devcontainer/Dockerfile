@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/python:1-3.12-bullseye
+FROM --platform=linux/amd64 mcr.microsoft.com/devcontainers/python:1-3.12-bullseye
 
 # Install basic development tools
 RUN apt update && apt install -y less man-db sudo

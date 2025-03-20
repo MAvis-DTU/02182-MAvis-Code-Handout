@@ -254,7 +254,7 @@ class RobotClient:
         'angle' : float
             The angle to turn in radians in the counter-clockwise direction.
         """
-        if block == False:
+        if not block:
             Thread(target=(lambda: self.motion.moveTo(0, 0, angle))).start()
         else:
             self.motion.moveTo(0, 0, angle)
@@ -320,7 +320,7 @@ class RobotClient:
         self.leds.fadeRGB("FaceLeds", 0, 1, 0, 0.5)
 
         # start recording
-        robot.recorder.startMicrophonesRecording(
+        self.recorder.startMicrophonesRecording(
             "/home/nao/test.wav", "wav", 16000, channels)
         print_debug('Started recording')
 
@@ -331,16 +331,16 @@ class RobotClient:
         time.sleep(duration)
 
         # stop recording
-        robot.recorder.stopMicrophonesRecording()
+        self.recorder.stopMicrophonesRecording()
 
         # load the file
         print_debug('Done recording')
-        fileId = robot.player.loadFile("/home/nao/test.wav")
+        fileId = self.player.loadFile("/home/nao/test.wav")
 
         # play the file if playback is True
         if playback:
             print_debug('playing sound first')
-            robot.player.play(fileId)
+            self.player.play(fileId)
 
         # Get the audio data but do not pass through socket.
         # Instead save it locally for faster speech to text!

@@ -36,9 +36,8 @@ class MultiParentNode:
     ALL_OPTIMAL_PLANS search.
 
     More precisely, it provides the following additional members:
-    - parents: A list of parents such that we can support each node having
-    multiple parents
-    - actions: A list of all possible actions from this state.
+    - parent_action_map: A map of parent nodes into the action taken to reach
+    this node from the given parent node.
     - optimal_actions_and_results: A map of actions into their resulting
     MultiParentNode. Note that these actions should be the subset of all
     possible actions, which occurs on some optimal plan.
@@ -55,8 +54,7 @@ class MultiParentNode:
     def __init__(self, state: State):
         self.state = state
         self.path_cost = state.path_cost
-        self.parents: list[MultiParentNode] = []
-        self.actions: list[Action] = []
+        self.parent_action_map: dict[MultiParentNode, Action] = {}
         self.optimal_actions_and_results: dict[Action, MultiParentNode] = {}
         self.consistent_goals = set()
         # Only used for visualization
@@ -77,9 +75,9 @@ class MultiParentNode:
         # Returns a list of actions and their corresponding resulting states, which would be consistent with an
         # optimal plan to solve the specified goal.
         consistent_actions_and_results = []
-        for action, state in self.optimal_actions_and_results.items():
-            if goal in state.consistent_goals:
-                consistent_actions_and_results.append((action, state))
+        for action, node in self.optimal_actions_and_results.items():
+            if goal in node.consistent_goals:
+                consistent_actions_and_results.append((action, node))
 
         return consistent_actions_and_results
 
@@ -96,7 +94,7 @@ class MultiParentNode:
         return hash(self.state)
 
 
-def visualize_solution_graph(solution_graph: MultiParentNode):
+def visualize_solution_graph(solution_graph: MultiParentNode, filename: str = "all_optimal_paths", output_dir: str = "tmp/all_optimal_paths") -> None:
     """
     The function allow you to visualize the found solution graph as a picture.
 
@@ -129,7 +127,7 @@ def visualize_solution_graph(solution_graph: MultiParentNode):
         return subgraph.id
 
     visitor(solution_graph)
-    graph.render("all_optimal_paths", directory="tmp")
+    graph.render(filename , directory=output_dir)
 
 def all_optimal_plans(
     initial_state: State,
@@ -165,7 +163,7 @@ def all_optimal_plans(
     root = MultiParentNode(initial_state)
 
     frontier.add(root)
-    generated_states = {}
+    generated_states: dict[MultiParentNode, MultiParentNode] = {}
 
     # Your implementation of ALL-OPTIMAL-PLANS goes here...
     raise NotImplementedError()

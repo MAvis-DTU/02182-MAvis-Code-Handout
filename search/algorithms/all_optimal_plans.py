@@ -36,8 +36,8 @@ class MultiParentNode:
     ALL_OPTIMAL_PLANS search.
 
     More precisely, it provides the following additional members:
-    - parent_action_map: A map of parent nodes into the action taken to reach
-    this node from the given parent node.
+    - parent_action_pairs: A list of Node-Action pairs containing pairs of
+    parent nodes and the action taken to reach this node from the given parent node.
     - optimal_actions_and_results: A map of actions into their resulting
     MultiParentNode. Note that these actions should be the subset of all
     possible actions, which occurs on some optimal plan.
@@ -54,7 +54,7 @@ class MultiParentNode:
     def __init__(self, state: State):
         self.state = state
         self.path_cost = state.path_cost
-        self.parent_action_map: dict[MultiParentNode, Action] = {}
+        self.parent_action_pairs: list[tuple[MultiParentNode, Action]] = []
         self.optimal_actions_and_results: dict[Action, MultiParentNode] = {}
         self.consistent_goals = set()
         # Only used for visualization

@@ -1,0 +1,35 @@
+version = 1
+revision = 3
+requires-python = ">=3.12"
+
+[manifest]
+members = [
+    "mavis",
+    "robot",
+    "search",
+]
+
+[[package]]
+name = "mavis"
+version = "1.0.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "robot" },
+    { name = "search" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "robot", editable = "robot" },
+    { name = "search", editable = "search" },
+]
+
+[[package]]
+name = "robot"
+version = "1.0.0"
+source = { editable = "robot" }
+
+[[package]]
+name = "search"
+version = "1.0.0"
+source = { editable = "search" }

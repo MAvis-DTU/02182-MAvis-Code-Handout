@@ -1,0 +1,16 @@
+[project]
+name = "mavis"
+version = "1.0.0"
+description = "MAvis - Multi-Agent Visual Intelligence System"
+requires-python = ">=3.12"
+dependencies = [
+    "robot",
+    "search",
+]
+
+[tool.uv.workspace]
+members = ["robot", "search"]
+
+[tool.uv.sources]
+robot = { workspace = true }
+search = { workspace = true }

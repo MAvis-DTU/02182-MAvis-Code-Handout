@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  build-and-test:
+    name: Build & Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-13]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── macOS: Docker is not pre-installed; use Colima as the container runtime ──
+      - name: Set up Docker (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install docker colima
+          colima start --wait
+          # Verify Docker daemon is reachable
+          docker info
+
+      # ── Build the devcontainer image defined in .devcontainer/Dockerfile ──
+      - name: Build devcontainer Docker image
+        run: |
+          docker build \
+            --tag mavis-devcontainer \
+            --file .devcontainer/Dockerfile \
+            .
+
+      # ── README: devcontainer setup check (step 4.2) ──
+      # Run all commands from the README inside the built image.
+      # Installs Xvfb to provide a virtual display for the -g (GUI) flag,
+      # matching the noVNC display the devcontainer normally uses.
+      - name: Run README commands
+        run: |
+          docker run --rm \
+            --user root \
+            --volume "${{ github.workspace }}:/workspaces/mavis_client" \
+            --workdir /workspaces/mavis_client \
+            mavis-devcontainer \
+            bash -c "
+              set -euo pipefail
+
+              echo '=============================='
+              echo ' Post-create setup (uv sync)  '
+              echo '=============================='
+              uv sync
+              source .venv/bin/activate
+
+              echo '=============================='
+              echo ' java -version                '
+              echo '=============================='
+              java -version
+
+              echo '=============================='
+              echo ' java -jar server.jar -h      '
+              echo '=============================='
+              java -jar server.jar -h
+
+              echo '=============================='
+              echo ' python3 client.py -h         '
+              echo '=============================='
+              python3 client.py -h
+
+              echo '=============================='
+              echo ' python3 client.py classic -h '
+              echo '=============================='
+              python3 client.py classic -h
+
+              echo '=============================='
+              echo ' Starting virtual display      '
+              echo '=============================='
+              apt-get install -y -q xvfb
+              Xvfb :99 -screen 0 1920x1080x24 &
+              sleep 2
+              export DISPLAY=:99
+
+              echo '=================================================================='
+              echo ' java -jar server.jar -g -s 300 -t 180                           '
+              echo '          -c \"python3 client.py classic\" -l levels/SAD1.lvl    '
+              echo '=================================================================='
+              java -jar server.jar -g -s 300 -t 180 \
+                -c 'python3 client.py classic' \
+                -l levels/SAD1.lvl
+            "
